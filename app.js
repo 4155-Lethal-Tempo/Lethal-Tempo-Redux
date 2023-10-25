@@ -21,9 +21,10 @@ app.get('/', (req, res) => {
 });
 
 // When you click on said line you are sent to this
+var state;
 app.get('/login', (req, res) => {
     var state = generateRandomString(16);
-    var scope = 'user-read-private user-read-email';
+    var scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
 
     res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
@@ -38,8 +39,9 @@ app.get('/login', (req, res) => {
 // This is the callback page that is called after you login
 // It is supposed to give you an access token and a refresh token
 // We'll use this to make API calls
+var code;
 app.get('/callback', async (req, res) => {
-    var code = req.query.code || null;
+    code = req.query.code || null;
     var state = req.query.state || null;
   
     if (state === null) {
@@ -68,14 +70,18 @@ app.get('/callback', async (req, res) => {
 app.get('/home', (req, res) => {
     res.render('main/landingPage.ejs');
 });
+app.get('/topTracks', (req, res) => {
+  res.render('main/topTracks.ejs');
+});
 
+var access_token;
 // Refreshes the access token in case it expires
 app.get('/refresh_token', function(req, res) {
 
     var refresh_token = req.query.refresh_token;
     var authOptions = {
       url: 'https://accounts.spotify.com/api/token',
-      headers: { 'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')) },
+      headers: { 'Authorization': 'Basic ' + (new Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64')) },
       form: {
         grant_type: 'refresh_token',
         refresh_token: refresh_token
@@ -83,9 +89,10 @@ app.get('/refresh_token', function(req, res) {
       json: true
     };
   
+    
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        var access_token = body.access_token;
+        access_token = body.access_token;
         res.send({
           'access_token': access_token
         });
@@ -106,3 +113,46 @@ function generateRandomString(length) {
 
     return result;
 }
+
+
+if (typeof localStorage === "undefined" || localStorage === null) {
+  var LocalStorage = require('node-localstorage').LocalStorage;
+  localStorage = new LocalStorage('./scratch');
+}
+
+localStorage.setItem('myFirstKey', 'myFirstValue');
+console.log(localStorage.getItem('myFirstKey'));
+const fetch = require('node-fetch');
+
+app.get('/top-tracks', async (req, res) => {
+  res.redirect('/topTracks');
+  //localStorage.getItem('access_token')
+  let accessToken = 'BQBm-voZyybCz0-y1dAi8QFpdFrvL9WHLqQpaXhSak3jUIdM6utX1vnHIgz4SZscPT2fQordyNcv1z2pBKplo0uX0ABNx3vNCp8fa96_xQ9qV9M6Iwzff1_RJ-aNoucY__ha_nfYswm18g6f8OpCiRaEwacFDj44j5UdD4s8-FPrn9UCcNTN0jPjmq03JNLBr-s2x6Note2YGSQvo_q39m9r235F1ACOa3HLm_9KCpW9uqJQtQni27g2caNP2cBtR6gdMO9b';
+  const token = accessToken;
+  async function fetchWebApi(endpoint, method, body) {
+    const res = await fetch(`https://api.spotify.com/${endpoint}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method,
+      body:JSON.stringify(body)
+    });
+    return await res.json();
+  }
+  
+  async function getTopTracks(){
+    // Endpoint reference : https://developer.spotify.com/documentation/web-api/reference/get-users-top-artists-and-tracks
+    return (await fetchWebApi(
+      'v1/me/top/tracks?time_range=long_term&limit=25', 'GET'
+    )).items;
+  }
+  
+  const topTracks = await getTopTracks();
+  console.log(
+    topTracks?.map(
+      ({name, artists}) =>
+        `${name} by ${artists.map(artist => artist.name).join(', ')}`
+    )
+  );
+
+  });
