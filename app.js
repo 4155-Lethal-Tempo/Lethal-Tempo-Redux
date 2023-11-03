@@ -6,38 +6,25 @@
 */                
 
 const express = require('express');
+const session = require('express-session');
 const app = express();
 const request = require('request');
 const querystring = require('node:querystring');
 require('dotenv').config();
 const port = 8084;
-const fs = require('fs')
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
 
+app.use(session({
+  secret: "SuperSecretKey",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Change to true when using HTTPS
+}));
+
 app.use(express.static('public'));
-
-// This page contains a link that sends you to the Spotify login page
-app.get('/', (req, res) => {
-    res.render('index.ejs');
-});
-
-// When you click on said line you are sent to this
-app.get('/login', (req, res) => {
-    var state = generateRandomString(16);
-    var scope = 'ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
-
-    res.redirect('https://accounts.spotify.com/authorize?' +
-    querystring.stringify({
-      response_type: 'code',
-      client_id: process.env.CLIENT_ID,
-      scope: scope,
-      redirect_uri: process.env.REDIRECT_URI,
-      state: state
-    }));
-});
 
 // This is the callback page that is called after you login
 // It is supposed to give you an access token and a refresh token
@@ -69,14 +56,48 @@ app.get('/callback', function(req, res) {
 
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        access_token = body.access_token;
-        process.env.ACCESS_TOKEN = access_token;
+        req.session.access_token = body.access_token;
+        res.redirect('/');
       } else {
         console.log(response.body);
         console.log(response.statusMessage);
       }
     });
+});
+
+// This page contains a link that sends you to the Spotify login page
+app.get('/', (req, res) => {
+  var access_token = req.session.access_token;
+
+  if (access_token == null || access_token == '' || access_token == undefined) {
+    res.render('index.ejs');
+  } else {
     res.redirect('/home');
+  }
+});
+
+// When you click on said line you are sent to this
+app.get('/login', (req, res) => {
+    var state = generateRandomString(16);
+    var scope = 'ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
+
+    res.redirect('https://accounts.spotify.com/authorize?' +
+    querystring.stringify({
+      response_type: 'code',
+      client_id: process.env.CLIENT_ID,
+      scope: scope,
+      redirect_uri: process.env.REDIRECT_URI,
+      state: state
+    }));
+});
+
+// logs you out - work in progress
+app.get('/logout', (req, res) => {
+  // Set the access token to null
+  req.session.destroy();
+
+  // Redirect to the login page
+  res.redirect('/');
 });
 
 
@@ -90,8 +111,6 @@ app.get('/topTracks', (req, res) => {
 app.get('/topPodcasts', (req, res) => {
   res.render('main/topPodcasts.ejs');
 });
-
-var access_token;
 // Refreshes the access token in case it expires
 app.get('/refresh_token', function(req, res) {
 
@@ -114,11 +133,11 @@ app.get('/refresh_token', function(req, res) {
     
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
-        access_token = body.access_token;
-        refresh_token = body.refresh_token;
+        req.session.access_token = body.access_token;
+        req.session.refresh_token = body.refresh_token;
         res.send({
-          'access_token': access_token,
-          'refresh_token': refresh_token
+          'access_token': req.session.access_token,
+          'refresh_token': req.session.refresh_token
         });
       }
     });
@@ -145,11 +164,10 @@ function generateRandomString(length) {
   });
 
   app.get('/top-tracks', async (req, res) => {
-      let accessToken = process.env.ACCESS_TOKEN;
     try {
     const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50',{
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${req.session.access_token}`
       }
 
       
@@ -157,13 +175,13 @@ function generateRandomString(length) {
 
     const shortTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50', {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${req.session.access_token}`
       }
     });
 
     const mediumTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50', {
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${req.session.access_token}`
       }
     });
 
