@@ -1,4 +1,29 @@
-<div>
-    <p>Landing page</p>
-    <a href='/top-tracks'>top top-tracks</a>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>Document</title>
+</head>
+
+<body style="background-color: black; color: white">
+<%- include('../partials/header.ejs')%>
+    <div class="bdy-container">
+        <div class="title">
+            <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
+        </div>
+        <div class="body-container">
+            <%- include('../partials/nav.ejs') %>
+            <br>
+            <br>
+            <p>View your most listen to tracks or Podcasts and filter by artist or genre.</p><br>
+            <p>Look at what your friends listen to and take a look at their playlists.</p><br>
+            <p>See what songs are being played and liked by other users on Lethal Tempo.</p><br>
+            <p>View comments from other users on songs and podcasts.</p><br>
+        </div>
+    </div>
+    </body>
+    
+    </html>

@@ -24,7 +24,9 @@
     "esm": "^3.2.25",
     "express": "^4.18.2",
     "node-fetch": "^2.7.0",
-    "node-localstorage": "^3.0.5"
+    "node-localstorage": "^3.0.5",
+    "request": "^2.88.2",
+    "spotify-web-api-node": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
