@@ -12,28 +12,6 @@
                     <%- include('../partials/nav.ejs') %>
                     <div class="topTracksList">
                         <div class="list1">
-                            <h3 class="topTracks-title">All Time</h3>
-                            <% if (tracks && tracks.items) { %>
-
-                                <ol>
-                                    <% tracks.items.forEach(function(track) { %>
-                                        <li class="track-card">
-                                            <div class="album-cover">
-                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
-                                            </div>
-                                            <div class="track-info">
-                                                <h2 class="track-title"><%= track.name %></h2>
-                                                <p class="artist-name"><%= track.artists[0].name %></p>
-                                            </div>
-                                        </li>
-                                    <% }); %>
-                                </ol>
-                                <% } else { %>
-                                    <p>No tracks found.</p>
-                                <% } %>
-                        </div>
-
-                        <div class="list2">
                             <h3 class="topTracks-title">Past Month</h3>
                             <% if (tracks && shortTermTracks.items) { %>
                                 <ol>
@@ -54,7 +32,7 @@
                             <% } %>
                         </div>
                         
-                        <div class="list3">
+                        <div class="list1">
                             <h3 class="topTracks-title">Past Six Months</h3>
                             <% if (tracks && mediumTermTracks.items) { %>
                                 <ol>
@@ -73,6 +51,28 @@
                             <% } else { %>
                                 <p>No tracks found.</p>
                             <% } %>
+                        </div>
+
+                        <div class="list1">
+                            <h3 class="topTracks-title">All Time</h3>
+                            <% if (tracks && tracks.items) { %>
+
+                                <ol>
+                                    <% tracks.items.forEach(function(track) { %>
+                                        <li class="track-card">
+                                            <div class="album-cover">
+                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
+                                            </div>
+                                            <div class="track-info">
+                                                <h2 class="track-title"><%= track.name %></h2>
+                                                <p class="artist-name"><%= track.artists[0].name %></p>
+                                            </div>
+                                        </li>
+                                    <% }); %>
+                                </ol>
+                                <% } else { %>
+                                    <p>No tracks found.</p>
+                                <% } %>
                         </div>
                     </div>
                 </div>
