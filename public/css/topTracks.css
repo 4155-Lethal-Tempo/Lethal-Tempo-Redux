@@ -1,0 +1,61 @@
+  /********** Top Tracks Page **********/
+
+
+div.topTracksList{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.topTracks-title {
+    font-family: DM Sans, sans-serif;
+    text-align: left;
+}
+
+.track-card {
+    display: flex;
+    margin-bottom: 20px;
+    padding: 10px 5px 10px 10px;
+    /*background-color: var(--spotify-green); */
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+li.track-card:hover {
+    border-color: var(--spotify-green);
+    box-shadow: 0px 0px 10px 2px var(--spotify-green);
+}
+
+.album-cover img {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+}
+
+.track-info {
+    margin-left: 20px;
+}
+
+.track-title {
+    margin: 0;
+    color: white;
+    font-size: 24px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.artist-name {
+    margin: 0;
+    color: white;
+    font-size: 24px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.topTracksList {
+    display: flex;
+    justify-content: space-between;
+}
+
+.list1 {
+    width: 30%;
+}
