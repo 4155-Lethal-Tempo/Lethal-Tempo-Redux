@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/styles.css">
-    <title>Top Tracks</title>
-</head>
+<%- include('../partials/head.ejs') %>
 
 <body>
     <%- include('../partials/header.ejs')%>
@@ -18,85 +10,73 @@
                 </div>
                 <div class="body-container">
                     <%- include('../partials/nav.ejs') %>
-                        
-                        <div class="topTracksList">
-                            <div class="list1">
-                            
-                                
-                                 <h3>All Time</h3>
-                                <% if (tracks && tracks.items) { %>
+                    <div class="topTracksList">
+                        <div class="list1">
+                            <h3 class="topTracks-title">All Time</h3>
+                            <% if (tracks && tracks.items) { %>
 
-                                    <ol>
-                                        <% tracks.items.forEach(function(track) { %>
-                                            <li>
-                                                <b id="jaja">
-                                                    <img src="<%= track.album.images[0].url%>" width="65"> <%= track.name %>
-                                                </b>
-                                                <%= '   by    ' + track.artists[0].name %> 
-                                                
-
-                                            </li>
-                                            <% }); %>
-                                    </ol>
-
-                                    <% } else { %>
-                                        <p>No tracks found.</p>
-                                        <% } %>
-                            </div>
-
-
-
-                            <div class="list2">
-                                <h3>Past Month</h3>
-                                
-                                <% if (tracks && shortTermTracks.items) { %>
-
-                                    <ol>
-                                        <% shortTermTracks.items.forEach(function(track) { %>
-                                            <li>
-                                                <b id="jaja">
-                                                    <img src="<%= track.album.images[0].url%>" width="65"> <%= track.name %>
-                                                </b>
-                                                <%= '   by    ' + track.artists[0].name %> 
-                                            </li>
-                                            <% }); %>
-                                    </ol>
-
-                                    <% } else { %>
-                                        <p>No tracks found.</p>
-                                        <% } %>
-                            </div>
-                            <div class="list3">
-                                <h3>Past Six Months</h3>
-                               
-                                <% if (tracks && mediumTermTracks.items) { %>
-
-                                    <ol>
-                                        <% mediumTermTracks.items.forEach(function(track) { %>
-                                            <li>
-                                                <b id="jaja">
-                                                    <img src="<%= track.album.images[0].url%>" width="65"> <%= track.name %>
-                                                </b>
-                                                <%= '   by    ' + track.artists[0].name %>
-                                            </li>
-                                            <% }); %>
-                                    </ol>
-
-                                    <% } else { %>
-                                        <p>No tracks found.</p>
-                                        <% } %>
-                            </div>
+                                <ol>
+                                    <% tracks.items.forEach(function(track) { %>
+                                        <li class="track-card">
+                                            <div class="album-cover">
+                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
+                                            </div>
+                                            <div class="track-info">
+                                                <h2 class="track-title"><%= track.name %></h2>
+                                                <p class="artist-name"><%= track.artists[0].name %></p>
+                                            </div>
+                                        </li>
+                                    <% }); %>
+                                </ol>
+                                <% } else { %>
+                                    <p>No tracks found.</p>
+                                <% } %>
                         </div>
+
+                        <div class="list2">
+                            <h3 class="topTracks-title">Past Month</h3>
+                            <% if (tracks && shortTermTracks.items) { %>
+                                <ol>
+                                    <% shortTermTracks.items.forEach(function(track) { %>
+                                        <li class="track-card">
+                                            <div class="album-cover">
+                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
+                                            </div>
+                                            <div class="track-info">
+                                                <h2 class="track-title"><%= track.name %></h2>
+                                                <p class="artist-name"><%= track.artists[0].name %></p>
+                                            </div>
+                                        </li>
+                                    <% }); %>
+                                </ol>
+                            <% } else { %>
+                                <p>No tracks found.</p>
+                            <% } %>
+                        </div>
+                        
+                        <div class="list3">
+                            <h3 class="topTracks-title">Past Six Months</h3>
+                            <% if (tracks && mediumTermTracks.items) { %>
+                                <ol>
+                                    <% mediumTermTracks.items.forEach(function(track) { %>
+                                        <li class="track-card">
+                                            <div class="album-cover">
+                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
+                                            </div>
+                                            <div class="track-info">
+                                                <h2 class="track-title"><%= track.name %></h2>
+                                                <p class="artist-name"><%= track.artists[0].name %></p>
+                                            </div>
+                                        </li>
+                                    <% }); %>
+                                </ol>
+                            <% } else { %>
+                                <p>No tracks found.</p>
+                            <% } %>
+                        </div>
+                    </div>
                 </div>
-
-
             </div>
-
-
-
-
-            </div>
-            <p id="name"></p>
         </body>
 
 </html>

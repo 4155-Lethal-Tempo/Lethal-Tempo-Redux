@@ -192,7 +192,12 @@ function generateRandomString(length) {
       const shortTermData = await shortTermResponse.json();
       const mediumTermData = await mediumTermResponse.json();
 
-      res.render('main/topTracks.ejs', { tracks: data, shortTermTracks: shortTermData, mediumTermTracks: mediumTermData});
+      res.render('main/topTracks.ejs', { 
+        tracks: data, 
+        shortTermTracks: shortTermData, 
+        mediumTermTracks: mediumTermData,
+        page: 'topTracks'
+      });
     } else {
       res.send('Failed to retrieve top tracks. Status code: ' + response.status);
     }
