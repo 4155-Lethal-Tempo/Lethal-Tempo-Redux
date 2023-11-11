@@ -185,7 +185,6 @@ function generateRandomString(length) {
         req.session.access_token_received_at = Date.now();
       } catch (error) {
           console.error('Error refreshing access token', error);
-          // Handle the error appropriately in your application
       }
     } else {
       try {
@@ -254,7 +253,6 @@ app.get('/track/:id', async (req, res) => {
       req.session.access_token_received_at = Date.now();
     } catch (error) {
         console.error('Error refreshing access token', error);
-        // Handle the error appropriately in your application
     }
   } else {
     try {
@@ -275,6 +273,38 @@ app.get('/track/:id', async (req, res) => {
       res.send('An error occurred: ' + error.message);
     }
   }
+});
+
+// This should get the current user's profile
+app.get('/getMe', async (req, res) => {
+  if(accessTokenHasExpired(req)){
+    try {
+      const { data } = await axios.get('/refresh_token');
+      req.session.access_token = data.access_token;
+      req.session.access_token_received_at = Date.now();
+    } catch (error) {
+        console.error('Error refreshing access token', error);
+    }
+  } else {
+    try {
+      const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        console.log(data); // Log the response data for debugging
+        res.render('main/profile.ejs', { user: data });
+      } else {
+        res.send('Failed to retrieve user. Status code: ' + response.status);
+      }
+    } catch (error) {
+      res.send('An error occurred: ' + error.message);
+    }
+  }
+
 });
 
 
