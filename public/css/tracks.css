@@ -59,3 +59,43 @@ li.track-card:hover {
 .list1 {
     width: 30%;
 }
+
+/* For track.ejs */
+.track-big {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 20px;
+    width: 80%;
+}
+
+.track-cover-big {
+    flex: 1;
+}
+
+.track-cover-big img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.track-info-big {
+    font-family: DM Sans, sans-serif;
+    flex: 2;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+.track-title-big {
+    font-size: 2em;
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+
+.artist-name-big {
+    font-size: 1.5em;
+    margin-top: 0px;
+}
