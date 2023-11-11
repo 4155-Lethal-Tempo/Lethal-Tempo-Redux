@@ -1,0 +1,63 @@
+<%- include('../partials/head.ejs') %>
+    <%- include('../partials/header.ejs')%>
+    <body style="background-color: black; color: white">
+        <div class="bdy-container">
+            <div class="title">
+                <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
+            </div>
+            <div class="body-container">
+                <%- include('../partials/nav.ejs') %>
+                <style>
+                    .track-big {
+                        display: flex;
+                        align-items: flex-start;
+                        justify-content: flex-start;
+                        margin: 20px;
+                        width: 80%;
+                    }
+                
+                    .track-cover-big {
+                        flex: 1;
+                    }
+                
+                    .track-cover-big img {
+                        width: 100%;
+                        height: auto;
+                        border-radius: 10px;
+                    }
+                
+                    .track-info-big {
+                        font-family: DM Sans, sans-serif;
+                        flex: 2;
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: flex-start;
+                        height: 100%;
+                    }
+                
+                    .track-title-big {
+                        font-size: 2em;
+                        margin-bottom: 10px;
+                        margin-top: 0px;
+                    }
+                
+                    .artist-name-big {
+                        font-size: 1.5em;
+                        margin-top: 0px;
+                    }
+                </style>
+                <% if (track) { %>
+                    <div class="track-big">
+                        <div class="track-cover-big">
+                            <img src="<%= track.album.images[0].url %>" alt="Track image">
+                        </div>
+                        <div class="track-info-big">
+                            <h2 class="track-title-big"><%= track.name %></h2>
+                            <p class="artist-name-big"><%= track.artists[0].name %></p>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </body>

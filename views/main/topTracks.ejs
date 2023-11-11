@@ -14,15 +14,17 @@
                             <% if (tracks && shortTermTracks.items) { %>
                                 <ol>
                                     <% shortTermTracks.items.forEach(function(track) { %>
-                                        <li class="track-card">
-                                            <div class="album-cover">
-                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
-                                            </div>
-                                            <div class="track-info">
-                                                <h2 class="track-title"><%= track.name %></h2>
-                                                <p class="artist-name"><%= track.artists[0].name %></p>
-                                            </div>
-                                        </li>
+                                        <a class="track-link" href="/track/<%= track.id %>">
+                                            <li class="track-card">
+                                                <div class="album-cover">
+                                                    <img src="<%= track.album.images[0].url%>" alt="Album cover">
+                                                </div>
+                                                <div class="track-info">
+                                                    <h2 class="track-title"><%= track.name %></h2>
+                                                    <p class="artist-name"><%= track.artists[0].name %></p>
+                                                </div>
+                                            </li>
+                                        </a>
                                     <% }); %>
                                 </ol>
                             <% } else { %>
@@ -35,15 +37,17 @@
                             <% if (tracks && mediumTermTracks.items) { %>
                                 <ol>
                                     <% mediumTermTracks.items.forEach(function(track) { %>
-                                        <li class="track-card">
-                                            <div class="album-cover">
-                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
-                                            </div>
-                                            <div class="track-info">
-                                                <h2 class="track-title"><%= track.name %></h2>
-                                                <p class="artist-name"><%= track.artists[0].name %></p>
-                                            </div>
-                                        </li>
+                                        <a class="track-link" href="/track/<%= track.id %>">
+                                            <li class="track-card">
+                                                <div class="album-cover">
+                                                    <img src="<%= track.album.images[0].url%>" alt="Album cover">
+                                                </div>
+                                                <div class="track-info">
+                                                    <h2 class="track-title"><%= track.name %></h2>
+                                                    <p class="artist-name"><%= track.artists[0].name %></p>
+                                                </div>
+                                            </li>
+                                        </a>
                                     <% }); %>
                                 </ol>
                             <% } else { %>
@@ -57,15 +61,17 @@
 
                                 <ol>
                                     <% tracks.items.forEach(function(track) { %>
-                                        <li class="track-card">
-                                            <div class="album-cover">
-                                                <img src="<%= track.album.images[0].url%>" alt="Album cover">
-                                            </div>
-                                            <div class="track-info">
-                                                <h2 class="track-title"><%= track.name %></h2>
-                                                <p class="artist-name"><%= track.artists[0].name %></p>
-                                            </div>
-                                        </li>
+                                        <a class="track-link" href="/track/<%= track.id %>">
+                                            <li class="track-card">
+                                                <div class="album-cover">
+                                                    <img src="<%= track.album.images[0].url%>" alt="Album cover">
+                                                </div>
+                                                <div class="track-info">
+                                                    <h2 class="track-title"><%= track.name %></h2>
+                                                    <p class="artist-name"><%= track.artists[0].name %></p>
+                                                </div>
+                                            </li>
+                                        </a>
                                     <% }); %>
                                 </ol>
                                 <% } else { %>

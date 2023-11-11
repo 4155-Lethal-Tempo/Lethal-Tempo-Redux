@@ -145,6 +145,7 @@ app.get('/refresh_token', function(req, res) {
     });
 });
 
+// Checks if the access token has expired - returns true if it has, false otherwise
 function accessTokenHasExpired(req) {
   // Assume the access token expires in 1 hour (3600 seconds)
   const EXPIRATION_TIME = 3600 * 1000; // Convert to milliseconds
@@ -239,6 +240,41 @@ function generateRandomString(length) {
         res.send('An error occurred: ' + error.message);
       }
     }
+});
+
+// Go to the song page of a track we clicked on
+app.get('/track/:id', async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+
+  if(accessTokenHasExpired(req)){
+    try {
+      const { data } = await axios.get('/refresh_token');
+      req.session.access_token = data.access_token;
+      req.session.access_token_received_at = Date.now();
+    } catch (error) {
+        console.error('Error refreshing access token', error);
+        // Handle the error appropriately in your application
+    }
+  } else {
+    try {
+      const response = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        console.log(data); // Log the response data for debugging
+        res.render('main/track.ejs', { track: data });
+      } else {
+        res.send('Failed to retrieve track. Status code: ' + response.status);
+      }
+    } catch (error) {
+      res.send('An error occurred: ' + error.message);
+    }
+  }
 });
 
 
