@@ -37,7 +37,7 @@ VSCode: https://code.visualstudio.com/download
 
 10: Paste the callback URL (this: `http://localhost:8084/callback`) into Callback
 
-11: Change the name of **.env-example** to just **.env**
+11: Change the name of the **.env-example** file to just **.env**
 
 12: In your terminal type `npm start`
 
