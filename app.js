@@ -68,13 +68,21 @@ app.get('/callback', function(req, res) {
 });
 
 // This page contains a link that sends you to the Spotify login page
-app.get('/', (req, res) => {
+app.get('/', async (req, res)  => {
   var access_token = req.session.access_token;
 
   if (access_token == null || access_token == '' || access_token == undefined) {
     res.render('index.ejs');
   } else {
-    res.redirect('/home');
+    try {
+      const user = await getUserProfile(req.session.access_token);
+      req.session.user = user; // Store the user profile in the session - so we can access it later
+      res.redirect('/home');
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      // Redirect to login or refresh the token here
+      res.redirect('/login');
+    }
   }
 });
 
@@ -105,7 +113,7 @@ app.get('/logout', (req, res) => {
 
 
 app.get('/home', (req, res) => {
-    res.render('main/landingPage.ejs');
+    res.render('main/landingPage.ejs', { user: req.session.user });
 });
 app.get('/topTracks', (req, res) => {
   res.render('main/topTracks.ejs');
@@ -275,8 +283,8 @@ app.get('/track/:id', async (req, res) => {
   }
 });
 
-// This should get the current user's profile
-app.get('/getMe', async (req, res) => {
+// This gets user's profile - using getUserProfile function
+app.get('/me', async (req, res) => {
   if(accessTokenHasExpired(req)){
     try {
       const { data } = await axios.get('/refresh_token');
@@ -287,25 +295,27 @@ app.get('/getMe', async (req, res) => {
     }
   } else {
     try {
-      const response = await fetch('https://api.spotify.com/v1/me', {
-        headers: {
-          'Authorization': `Bearer ${req.session.access_token}`
-        }
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        console.log(data); // Log the response data for debugging
-        res.render('main/profile.ejs', { user: data });
-      } else {
-        res.send('Failed to retrieve user. Status code: ' + response.status);
-      }
+      const response = await getUserProfile(req.session.access_token);
+      res.render('main/profile.ejs', { user: response });
     } catch (error) {
       res.send('An error occurred: ' + error.message);
     }
   }
 
 });
+
+async function getUserProfile(accessToken) {
+  const response = await fetch('https://api.spotify.com/v1/me', {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+  });
+
+  if (response.status !== 200) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const userProfile = await response.json();
+  return userProfile;
+}
 
 
 

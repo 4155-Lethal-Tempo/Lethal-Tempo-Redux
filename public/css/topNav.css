@@ -44,9 +44,10 @@ img.navlogo {
   float: left;
 }
 
-a.logout{
+.logout{
   margin-right: 25px;
   color:white;
+  float: right;
   font-family: 'DM Sans', sans-serif;
   font-size: 17px;
   font-weight: bold;

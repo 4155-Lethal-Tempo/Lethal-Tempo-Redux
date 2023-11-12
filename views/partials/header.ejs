@@ -7,6 +7,9 @@
             <a class="nav-link" href="#about">About</a>
         </div>
         <a class="logout" href="/logout">Logout</a>
+        <% if (typeof user !== 'undefined' && user.images && user.images[0]) { %>
+            <img class="user-thumbnail" src="<%= user.images[0].url %>" alt="User Thumbnail">
+        <% } %>
         </div>
 </header>
     
