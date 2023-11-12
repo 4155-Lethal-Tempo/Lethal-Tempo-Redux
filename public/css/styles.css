@@ -17,13 +17,15 @@ body {
     -ms-overflow-style: none;
 }
 
-div.login-header {
+
+/********** Login Page **********/
+.login-header {
     padding-bottom: 0px;
     display: flex;
     flex-direction: column;
 }
 
-h1.login-title {
+.login-title {
     font-family: 'DM Sans', sans-serif;
     font-weight: bold;
     font-size: 50px;
@@ -32,7 +34,7 @@ h1.login-title {
     align-self: self-start;
 }
 
-p.login-subtext {
+.login-subtext {
     font-family: 'DM Sans', sans-serif;
     font-weight: bold;
     font-size: 16px;
@@ -41,7 +43,7 @@ p.login-subtext {
     margin-bottom: 25px;
 }
 
-div.container {
+.container {
     background-color: var(--container-gray);
     position: absolute;
     top: 50%;
@@ -56,8 +58,8 @@ div.container {
     align-items: center;
 }
 
-div.container::before,
-div.container::after {
+.container::before,
+.container::after {
     content: "";
     position: absolute;
     width: 200px;
@@ -66,17 +68,17 @@ div.container::after {
     border-radius: 50%;
 }
 
-div.container::before {
+.container::before {
     top: -100px;
     left: -100px;
 }
 
-div.container::after {
+.container::after {
     bottom: -100px;
     right: -100px;
 }
 
-a.login-btn {
+.login-btn {
     display: inline-block;
     margin: 0 auto;
     padding: 10px 20px;
@@ -93,52 +95,14 @@ a.login-btn {
     transition: var(--transition);
 }
 
-a.login-btn:hover {
+.login-btn:hover {
     background-color: green;
     color: white;
 }
+/********** **********/
 
 
-a.nav-btn {
-    display: inline-block;
-    margin: auto;
-    padding-left: 10px;
-    padding-right: 10px;
-    width: 150px;
-    height: 50px;
-    color: white;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: bold;
-    font-size: 18px;
-    border:1px solid var(--spotify-green);
-    border-radius: 20px;
-    background-color: var(--spotify-green);
-    text-decoration: none;
-    text-align: center;
-    line-height: 50px;
-    transition: var(--transition);
-}
-
-.body-container > .nav-buttons {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-div.nav-buttons {
-    display: flex;
-    justify-content: space-around;
-    margin: auto;
-    width: 90%;
-}
-
-a.nav-btn:hover {
-    box-shadow: 0px 0px 10px 2px black;
-    border-color: black;
-    color: black;
-}
-
-div.body-container{
+.body-container{
     display: flex; 
     flex-direction: column; 
     justify-content: space-evenly; 
@@ -146,19 +110,19 @@ div.body-container{
     font-size: 20px;
 }
 
-div.body-container > p {
+.body-container > p {
     font-size: 23px;
     font-family: 'DM Sans', sans-serif;
     font-weight: bold;
 }
 
-div.title {
+.title {
     font-family: 'DM Sans', sans-serif;
     font-weight: bold;
     font-size: 35px;
 }
 
-div.bdy-container {
+.bdy-container {
     background-color: var(--container-gray);
     border-radius: 25px;
     margin: 0 5%;
@@ -168,4 +132,35 @@ div.bdy-container {
 .track-link {
     text-decoration: none;
     
+}
+
+
+/********** Profile Page **********/
+.profile-container {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    width: 80%;
+    margin-top: 20px;
+}
+
+.profile-info {
+    display: flex;
+    align-items: flex-start;
+}
+
+.profile-pic img {
+    width: 300;
+    height: 300px;
+    border-radius: 10px;
+}
+
+.profile-name {
+    margin-left: 20px;
+}
+
+.profile-name h2 {
+    margin-top: 20px;
+    font-size: 24px;
+    font-family: DM Sans, sans-serif;
 }
