@@ -77,6 +77,7 @@ app.get('/', async (req, res)  => {
     try {
       const user = await getUserProfile(req.session.access_token);
       req.session.user = user; // Store the user profile in the session - so we can access it later
+      console.log(`Successfully logged in ${user.display_name}`);
       res.redirect('/home');
     } catch (error) {
       console.error('Error getting user profile:', error);
@@ -226,7 +227,8 @@ function generateRandomString(length) {
           res.render('main/topTracks.ejs', { 
             tracks: data, 
             shortTermTracks: shortTermData, 
-            mediumTermTracks: mediumTermData
+            mediumTermTracks: mediumTermData,
+            user: req.session.user
           });
         } else {
           res.send('Failed to retrieve top tracks. Status code: ' + response.status);
@@ -273,7 +275,7 @@ app.get('/track/:id', async (req, res) => {
       if (response.status === 200) {
         const data = await response.json();
         console.log(data); // Log the response data for debugging
-        res.render('main/track.ejs', { track: data });
+        res.render('main/track.ejs', { track: data, user: req.session.user });
       } else {
         res.send('Failed to retrieve track. Status code: ' + response.status);
       }
@@ -294,12 +296,7 @@ app.get('/me', async (req, res) => {
         console.error('Error refreshing access token', error);
     }
   } else {
-    try {
-      const response = await getUserProfile(req.session.access_token);
-      res.render('main/profile.ejs', { user: response });
-    } catch (error) {
-      res.send('An error occurred: ' + error.message);
-    }
+    res.render('main/profile.ejs', { user: req.session.user });
   }
 
 });

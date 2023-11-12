@@ -6,10 +6,18 @@
             <a class="nav-link" href="#contact">Contact</a>
             <a class="nav-link" href="#about">About</a>
         </div>
-        <a class="logout" href="/logout">Logout</a>
-        <% if (typeof user !== 'undefined' && user.images && user.images[0]) { %>
-            <img class="user-thumbnail" src="<%= user.images[0].url %>" alt="User Thumbnail">
-        <% } %>
+        <div class="right-items">
+            <a class="logout" href="/logout">Logout</a>
+            <% if (typeof user !== 'undefined' && user.images && user.images[0]) { %>
+                <a href="/me">
+                    <% if (!user.images || user.images.length < 0) { %>
+                     <img class="user-thumbnail" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png" alt="User Thumbnail">
+                    <% } %>
+                    <img class="user-thumbnail" src="<%= user.images[0].url %>" alt="User Thumbnail">
+                </a>
+            <% } %>
+            
         </div>
+     </div>
 </header>
     
