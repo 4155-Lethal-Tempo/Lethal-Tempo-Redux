@@ -1,6 +1,4 @@
 /********** Top Nav Bar **********/
-
-/* Add a black background color to the top navigation */
 .topnav {
   display: flex;
   align-items: center;
@@ -10,6 +8,7 @@
   height: 80px;
 }
 
+/********** Items on the left side of the green navbar ***********/
 /* Style the links inside the navigation bar */
 .left-items > a {
   float: left;
@@ -44,6 +43,15 @@
   float: left;
 }
 
+
+/********** Items on the right side of the green navbar ***********/
+.right-items {
+  /* this moves the logout button to the middle of the nav bar */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .logout{
   margin-right: 25px;
   color:white;
@@ -67,12 +75,7 @@
   color: black;
 }
 
-/* moves the logout button to the middle of the nav bar */
-.right-items {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+
 
 .user-thumbnail {
   margin-right: 25px;
