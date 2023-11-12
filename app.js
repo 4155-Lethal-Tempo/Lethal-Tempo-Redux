@@ -274,7 +274,7 @@ app.get('/track/:id', async (req, res) => {
 
       if (response.status === 200) {
         const data = await response.json();
-        console.log(data); // Log the response data for debugging
+        // console.log(data); // Log the response data for debugging
         res.render('main/track.ejs', { track: data, user: req.session.user });
       } else {
         res.send('Failed to retrieve track. Status code: ' + response.status);
