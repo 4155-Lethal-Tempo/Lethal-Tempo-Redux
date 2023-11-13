@@ -10,9 +10,18 @@ const session = require('express-session');
 const request = require('request');
 const querystring = require('node:querystring');
 const mongoose = require('mongoose');
+const User = require('./models/user');
 
 const app = express();
 require('dotenv').config();
+require('isomorphic-fetch');
+
+mongoose.connect('mongodb://localhost:27017/testDB', {useNewUrlParser: true, useUnifiedTopology: true})
+  .then(() => console.log('MongoDB Connected…'))
+  .catch(err => console.log(err)
+);
+
+
 const port = 8084;
 
 app.listen(port, () => {
