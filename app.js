@@ -16,7 +16,7 @@ const app = express();
 require('dotenv').config();
 require('isomorphic-fetch');
 
-mongoose.connect('mongodb://localhost:27017/testDB', {useNewUrlParser: true, useUnifiedTopology: true})
+mongoose.connect('mongodb://127.0.0.1:27017/testDB', {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => console.log('MongoDB Connected…'))
   .catch(err => console.log(err)
 );
@@ -285,7 +285,6 @@ app.get('/track/:id', async (req, res) => {
 
       if (response.status === 200) {
         const data = await response.json();
-        // console.log(data); // Log the response data for debugging
         res.render('main/track.ejs', { track: data, user: req.session.user });
       } else {
         res.send('Failed to retrieve track. Status code: ' + response.status);
