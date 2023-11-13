@@ -2,7 +2,8 @@
 
 **Requirements**
 
-NodeJS: https://nodejs.org/en/download/current
+1: NodeJS: https://nodejs.org/en/download/current
+2: A Spotify Account
 
 **Recommended IDE**
 
