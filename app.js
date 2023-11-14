@@ -18,7 +18,8 @@ const app = express();
 require('dotenv').config();
 require('isomorphic-fetch');
 
-mongoose.connect('mongodb://127.0.0.1:27017/testDB2', {useNewUrlParser: true, useUnifiedTopology: true})
+// Local DB: mongodb://127.0.0.1:27017/testDB2
+mongoose.connect('mongodb://127.0.0.1:27017/testDB2')
   .then(() => console.log('\nMongoDB Connected…'))
   .catch(err => console.log(err)
 );
@@ -134,7 +135,13 @@ app.get('/login', (req, res) => {
 
 // logs you out - work in progress
 app.get('/logout', (req, res) => {
-  // Set the access token to null
+  
+  // Check if there is a session
+  if(req.session.access_token){
+    console.log(`\nLogging out ${req.session.user.display_name}`);
+  }
+  
+  // destroy the session
   req.session.destroy();
 
   // Redirect to the login page
@@ -256,8 +263,6 @@ function generateRandomString(length) {
           headers: {
             'Authorization': `Bearer ${req.session.access_token}`
           }
-    
-          
         });
     
         const shortTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50', {
@@ -271,8 +276,6 @@ function generateRandomString(length) {
             'Authorization': `Bearer ${req.session.access_token}`
           }
         });
-    
-      
     
         if (response.status === 200 && shortTermResponse.status === 200 && mediumTermResponse.status === 200) {
           const data = await response.json();
@@ -316,6 +319,7 @@ app.get('/track/:id', async (req, res) => {
 
       if (response.status === 200) {
         const data = await response.json();
+        console.log(`\nGetting track ${data.name}`);
 
         // Check if track exists in the database
         let track = await Track.findOne({ track_id: id });
@@ -403,11 +407,10 @@ async function getUserProfile(accessToken) {
   });
 
   if (response.status !== 200) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    res.redirect('/')
+    throw new Error('Failed to get user profile');
   }
 
   const userProfile = await response.json();
   return userProfile;
 }
-
-  // -------------------------------//
