@@ -451,11 +451,80 @@ async function getUserProfile(accessToken) {
   return userProfile;
 }
 
-
-
 app.get('/contact',(req, res) => {
   res.render('main/contact.ejs');
 });
 app.get('/about',(req, res) => {
   res.render('main/about.ejs');
+});
+
+/********** Likes and Dislikes **********/
+app.get('/like/:trackId', async (req, res) => {
+  // Get trackID and userID
+  const trackId = req.params.trackId;
+  const userId = req.session.userDB.spotify_id;
+
+  // Find the user and track in the database
+  let user = await User.findOne({ spotify_id: userId });
+  let track = await Track.findOne({ track_id: trackId });
+
+  // If the track doesn't exist, create a new track
+  if (!track) {
+    track = new Track({ track_id: trackId });
+  }
+
+  // If the user has already disliked the track, remove the dislike
+  if (user.disliked_tracks.includes(trackId)) {
+    const index = user.disliked_tracks.indexOf(trackId);
+    user.disliked_tracks.splice(index, 1);
+    track.dislikes -= 1;
+  }
+
+  // If the user hasn't liked the track, add the like
+  if (!user.liked_tracks.includes(trackId)) {
+    user.liked_tracks.push(trackId);
+    track.likes += 1;
+  }
+
+  // Save the track and user in the database
+  await track.save();
+  await user.save();
+
+  // Redirect to the track page - so we can see the changes
+  res.redirect(`/track/${trackId}`);
+});
+
+app.get('/dislike/:trackId', async (req, res) => {
+  // Get trackID and userID
+  const trackId = req.params.trackId;
+  const userId = req.session.userDB.spotify_id;
+
+  // Find the user and track in the database
+  let user = await User.findOne({ spotify_id: userId });
+  let track = await Track.findOne({ track_id: trackId });
+
+  // If the track doesn't exist, create a new track
+  if (!track) {
+    track = new Track({ track_id: trackId });
+  }
+
+  // If the user has already liked the track, remove the like
+  if (user.liked_tracks.includes(trackId)) {
+    const index = user.liked_tracks.indexOf(trackId);
+    user.liked_tracks.splice(index, 1);
+    track.likes -= 1;
+  }
+
+  // If the user hasn't disliked the track, add the dislike
+  if (!user.disliked_tracks.includes(trackId)) {
+    user.disliked_tracks.push(trackId);
+    track.dislikes += 1;
+  }
+
+  // Save the track and user in the database
+  await track.save();
+  await user.save();
+
+  // Redirect to the track page - so we can see the changes
+  res.redirect(`/track/${trackId}`);
 });

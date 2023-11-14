@@ -20,19 +20,28 @@
                         
                             <%# Likes and dislikes %>
                             <div class="post-ratings-container">
-                            <div class="post">
-                                <span class="material-symbols-outlined" style="font-size: 48px;"> thumb_up </span>
-                                <span class="post-rating-count" style="font-size: 48px;"> 0 </span>
-                            </div>
-                            <div class="post">
-                                <span class="material-symbols-outlined" style="font-size: 48px;"> thumb_down</span>
-                                <span class="post-rating-count" style="font-size: 48px;"> 0 </span>
+                                <div class="post">
+                                    <!-- Like Button -->
+                                    <form action="/like/<%= track.id %>" method="GET">
+                                      <button type="submit" style="background: none; border: none; padding: 0; color: inherit; font: inherit;">
+                                        <span class="material-symbols-outlined" style="font-size: 48px;">thumb_up</span>
+                                      </button>
+                                      <span class="post-rating-count" style="font-size: 48px;"><%= trackDB.likes %></span>
+                                    </form>
+                                  </div>
+                                  <!-- Dislike Button -->
+                                  <div class="post">
+                                    <form action="/dislike/<%= track.id %>" method="GET">
+                                      <button type="submit" style="background: none; border: none; padding: 0; color: inherit; font: inherit;">
+                                        <span class="material-symbols-outlined" style="font-size: 48px;">thumb_down</span>
+                                      </button>
+                                      <span class="post-rating-count" style="font-size: 48px;"><%= trackDB.dislikes %></span>
+                                    </form>
+                                  </div>
                             </div>
                         </div>
-                    </div>
-
                     <%# Comments will go here %>
                 <% } %>
+                </div>
             </div>
-        </div>
     </body>
