@@ -16,7 +16,7 @@ const app = express();
 require('dotenv').config();
 require('isomorphic-fetch');
 
-mongoose.connect('mongodb://127.0.0.1:27017/testDB', {useNewUrlParser: true, useUnifiedTopology: true})
+mongoose.connect('mongodb://127.0.0.1:27017/testDB2', {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => console.log('MongoDB Connected…'))
   .catch(err => console.log(err)
 );
@@ -65,11 +65,29 @@ app.get('/callback', function(req, res) {
       };
     }
 
-    request.post(authOptions, function(error, response, body) {
+    request.post(authOptions, async function(error, response, body) {
       if (!error && response.statusCode === 200) {
         req.session.access_token = body.access_token;
         req.session.refresh_token = body.refresh_token;
         req.session.access_token_received_at = Date.now();
+        
+        // Get the user's profile
+        const user = await getUserProfile(req.session.access_token);
+        const spotify_id = user.id;
+        console.log(user.id);
+
+        // Check if the user exists in the database
+        let dbUser = await User.findOne({ spotify_id: spotify_id });
+
+        // If the user doesn't exist, create a new document/entry in the database
+        if (!dbUser) {
+          dbUser = new User({ spotify_id: spotify_id });
+          await dbUser.save();
+        } else {
+          // If the user exists, save the user's ID in the session
+          req.session.user_id = dbUser
+        }
+
         res.redirect('/');
       } else {
         console.log(response.body);
@@ -101,7 +119,7 @@ app.get('/', async (req, res)  => {
 // When you click on said line you are sent to this
 app.get('/login', (req, res) => {
     var state = generateRandomString(16);
-    var scope = 'ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
+    var scope = 'user-library-read ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
 
     res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
@@ -193,7 +211,36 @@ function generateRandomString(length) {
   
   
   app.get('/top-podcasts', async (req, res) => {
-    res.redirect('/topPodcasts');
+    if(accessTokenHasExpired(req)){
+      try {
+        const { data } = await axios.get('/refresh_token');
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } catch (error) {
+          console.error('Error refreshing access token', error);
+      }
+    } else {
+      try {
+        const response = await fetch('https://api.spotify.com/v1/me/shows',{
+          headers: {
+            'Authorization': `Bearer ${req.session.access_token}`
+          }
+        });
+
+
+        if (response.status === 200) {
+          const sdata = await response.json();
+          res.render('main/topPodcasts.ejs', { 
+            shows: sdata, 
+            user: req.session.user
+          });
+        } else {
+           res.send('Failed to retrieve podcasts. Status code: ' + response.status);
+         }
+      } catch (error) {
+        res.send('An error occurred: ' + error.message);
+      }
+    }
     
   });
 
@@ -244,18 +291,6 @@ function generateRandomString(length) {
         } else {
           res.send('Failed to retrieve top tracks. Status code: ' + response.status);
         }
-    
-        /*
-        if (shortTermResponse.status === 200) {
-          const data = await shortTermResponse.json();
-          console.log(data); // Log the response data for debugging
-          res.render('main/topTracks.ejs', { trackss: data });
-        } else {
-          res.send('Failed to retrieve top tracks. Status code: ' + shortTermResponse.status);
-        }
-        */
-    
-    
       } catch (error) {
         res.send('An error occurred: ' + error.message);
       }
@@ -295,6 +330,42 @@ app.get('/track/:id', async (req, res) => {
   }
 });
 
+//Go to the podcast page of show you click on
+app.get('/show/:id', async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+
+  if (accessTokenHasExpired(req)) {
+    try {
+      const { data } = await axios.get('/refresh_token');
+      req.session.access_token = data.access_token;
+      req.session.access_token_received_at = Date.now();
+    } catch (error) {
+      console.error('Error refreshing access token', error);
+    }
+  } else {
+    try {
+      const response = await fetch(`https://api.spotify.com/v1/shows/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      console.log(response.status);
+      console.log(response.statusText);
+
+      if (response.status === 200) {
+        const data = await response.json();
+        // console.log(data); // Log the response data for debugging
+        res.render('main/show.ejs', { show: data, user: req.session.user });
+      } else {
+        res.send('Failed to retrieve show. Status code: ' + response.status);
+      }
+    } catch (error) {
+      res.send('An error occurred: ' + error.message);
+    }
+  }
+});
+
 // This gets user's profile - using getUserProfile function
 app.get('/me', async (req, res) => {
   if(accessTokenHasExpired(req)){
@@ -323,7 +394,5 @@ async function getUserProfile(accessToken) {
   const userProfile = await response.json();
   return userProfile;
 }
-
-
 
   // -------------------------------//

@@ -7,8 +7,31 @@
             </div>
             <div class="body-container">
                 <%- include('../partials/nav.ejs') %>
+                <h1 class="topTracks-title">Saved Shows</h1>
                 <div class="topTracksList">
-                    <p>Something</p>
+                    
+                    <% if (shows && shows.items) { %>
+                    
+                        <ol>
+                            <% shows.items.forEach(function(show) { %>
+                                <a class="track-link" href="/show/<%= show.show.id %>">
+                                    
+                                    <li class="track-card">
+                                        <div class="album-cover">
+                                            <img src="<%= show.show.images[0].url%>" alt="Album cover">
+                                        </div>
+                                        <div class="track-info">
+                                            <h2 class="track-title"><%= show.show.name %></h2>
+                                            <p class="artist-name"><%= show.show.publisher %></p>
+                                        </div>
+                                    </li>
+                                </a>
+                            <% }); %>
+                        </ol>
+                        <% } else { %>
+                            <p>No tracks found.</p>
+                        <% } %>
+
                 </div>
             </div>
         </div>
