@@ -1,9 +1,10 @@
   /********** Top Tracks Page **********/
 
 
-div.topTracksList{
+.topTracksList{
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
+    width: 80%;
 }
 
 .topTracks-title {

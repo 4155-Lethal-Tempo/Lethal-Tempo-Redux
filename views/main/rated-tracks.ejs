@@ -1,0 +1,55 @@
+<%- include('../partials/head.ejs') %>
+    <%- include('../partials/header.ejs')%>
+
+        <body style="background-color: black; color: white">
+            <div class="bdy-container">
+                <div class="title">
+                    <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
+                </div>
+                <div class="body-container">
+                    <%- include('../partials/nav.ejs') %>
+                    <div class="topTracksList">
+                        <div class="list1">
+                            <h3 class="topTracks-title">Liked Tracks</h3>
+                            <% if (likedTracks && likedTracks.length > 0) { %>
+                                <ol>
+                                  <% likedTracks.forEach(function(track) { %>
+                                    <a class="track-link" href="/track/<%= track.id %>">
+                                      <li class="track-card">
+                                        <div class="album-cover">
+                                          <img src="<%= track.album.images[0].url %>" alt="Album cover">
+                                        </div>
+                                        <div class="track-info">
+                                          <h2 class="track-title"><%= track.name %></h2>
+                                          <p class="artist-name"><%= track.artists[0].name %></p>
+                                        </div>
+                                      </li>
+                                    </a>
+                                  <% }); %>
+                                </ol>
+                              <% } %>
+                        </div>
+                        <div class="list1">
+                            <h3 class="topTracks-title">Disliked Tracks</h3>
+                            <% if (dislikedTracks && dislikedTracks.length > 0) { %>
+                              <ol>
+                                <% dislikedTracks.forEach(function(track) { %>
+                                  <a class="track-link" href="/track/<%= track.id %>">
+                                    <li class="track-card">
+                                      <div class="album-cover">
+                                        <img src="<%= track.album.images[0].url %>" alt="Album cover">
+                                      </div>
+                                      <div class="track-info">
+                                        <h2 class="track-title"><%= track.name %></h2>
+                                        <p class="artist-name"><%= track.artists[0].name %></p>
+                                      </div>
+                                    </li>
+                                  </a>
+                                <% }); %>
+                              </ol>
+                            <% } %>
+                          </div>
+                    </div>
+                </div>
+            </div>
+        </body>

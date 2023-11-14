@@ -458,6 +458,31 @@ app.get('/about',(req, res) => {
   res.render('main/about.ejs');
 });
 
+app.get('/rated-tracks', async (req, res) => {
+  const userId = req.session.userDB.spotify_id;
+  let user = await User.findOne({ spotify_id: userId });
+
+  let likedTracksDetails = await Promise.all(user.liked_tracks.map(async (trackId) => {
+    let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.access_token}`
+      }
+    });
+    return response.json();
+  }));
+
+  let dislikedTracksDetails = await Promise.all(user.disliked_tracks.map(async (trackId) => {
+    let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.access_token}`
+      }
+    });
+    return response.json();
+  }));
+
+  res.render('main/rated-tracks.ejs', { likedTracks: likedTracksDetails, dislikedTracks: dislikedTracksDetails });
+});
+
 /********** Likes and Dislikes **********/
 app.get('/like/:trackId', async (req, res) => {
   // Get trackID and userID
