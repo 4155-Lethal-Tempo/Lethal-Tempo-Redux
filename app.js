@@ -24,7 +24,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/testDB2')
   .catch(err => console.log(err)
 );
 
-
 const port = 8084;
 
 app.listen(port, () => {
@@ -148,12 +147,9 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
-
-
 app.get('/home', (req, res) => {
     res.render('main/landingPage.ejs', { user: req.session.user });
 });
-
 
 // Refreshes the access token in case it expires
 app.get('/refresh_token', function(req, res) {
@@ -211,50 +207,48 @@ function generateRandomString(length) {
     }
     return result;
 }
-
   
-  
-  app.get('/top-podcasts', async (req, res) => {
-    if(accessTokenHasExpired(req)){
-      try {
-        const { data } = await axios.get('/refresh_token');
-        req.session.access_token = data.access_token;
-        req.session.access_token_received_at = Date.now();
-      } catch (error) {
-          console.error('Error refreshing access token', error);
-      }
-    } else {
-      try {
-        const response = await fetch('https://api.spotify.com/v1/me/shows',{
-          headers: {
-            'Authorization': `Bearer ${req.session.access_token}`
-          }
-        });
-
-        const episodeResponse = await fetch('https://api.spotify.com/v1/me/episodes', {
-          headers: {
-            'Authorization': `Bearer ${req.session.access_token}`
-          }
-        });
-
-
-        if (response.status === 200 && episodeResponse.status === 200) {
-          const sdata = await response.json();
-          const episodesData = await episodeResponse.json();
-          res.render('main/topPodcasts.ejs', { 
-            shows: sdata,
-            episodes: episodesData, 
-            user: req.session.user
-          });
-        } else {
-           res.send('Failed to retrieve podcasts. Status code: ' + response.status);
-         }
-      } catch (error) {
-        res.send('An error occurred: ' + error.message);
-      }
+app.get('/top-podcasts', async (req, res) => {
+  if(accessTokenHasExpired(req)){
+    try {
+      const { data } = await axios.get('/refresh_token');
+      req.session.access_token = data.access_token;
+      req.session.access_token_received_at = Date.now();
+    } catch (error) {
+        console.error('Error refreshing access token', error);
     }
-    
-  });
+  } else {
+    try {
+      const response = await fetch('https://api.spotify.com/v1/me/shows',{
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+      const episodeResponse = await fetch('https://api.spotify.com/v1/me/episodes', {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+
+      if (response.status === 200 && episodeResponse.status === 200) {
+        const sdata = await response.json();
+        const episodesData = await episodeResponse.json();
+        res.render('main/topPodcasts.ejs', { 
+          shows: sdata,
+          episodes: episodesData, 
+          user: req.session.user
+        });
+      } else {
+          res.send('Failed to retrieve podcasts. Status code: ' + response.status);
+        }
+    } catch (error) {
+      res.send('An error occurred: ' + error.message);
+    }
+  }
+  
+});
 
   app.get('/top-tracks', async (req, res) => {
     if(accessTokenHasExpired(req)){
