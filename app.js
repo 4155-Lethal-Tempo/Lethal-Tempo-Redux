@@ -11,6 +11,8 @@ const request = require('request');
 const querystring = require('node:querystring');
 const mongoose = require('mongoose');
 const User = require('./models/user');
+const Track = require('./models/track');
+const Comment = require('./models/comment');
 
 const app = express();
 require('dotenv').config();
@@ -84,7 +86,7 @@ app.get('/callback', function(req, res) {
           await dbUser.save();
         } else {
           // If the user exists, save the user's ID in the session
-          req.session.user_id = dbUser
+          req.session.userDB = dbUser
         }
 
         res.redirect('/');
@@ -314,7 +316,29 @@ app.get('/track/:id', async (req, res) => {
 
       if (response.status === 200) {
         const data = await response.json();
-        res.render('main/track.ejs', { track: data, user: req.session.user });
+
+        // Check if track exists in the database
+        let track = await Track.findOne({ track_id: id });
+
+        // If track doesn't exist, create a new track
+        if (!track) {
+          track = new Track({ track_id: id });
+          await track.save();
+        }
+
+        // Get the user's profile
+        const userDB = await getUserProfile(req.session.access_token);
+        const spotify_id = userDB.id;
+
+        // update the user we have stored in the session - just in case
+        req.session.userDB = await User.findOne({ spotify_id: spotify_id });
+
+        res.render('main/track.ejs', { 
+          track: data, 
+          user: req.session.user, 
+          trackDB: track,
+          userDB: req.session.userDB
+        });
       } else {
         res.send('Failed to retrieve track. Status code: ' + response.status);
       }
