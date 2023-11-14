@@ -231,11 +231,19 @@ function generateRandomString(length) {
           }
         });
 
+        const episodeResponse = await fetch('https://api.spotify.com/v1/me/episodes', {
+          headers: {
+            'Authorization': `Bearer ${req.session.access_token}`
+          }
+        });
 
-        if (response.status === 200) {
+
+        if (response.status === 200 && episodeResponse.status === 200) {
           const sdata = await response.json();
+          const episodesData = await episodeResponse.json();
           res.render('main/topPodcasts.ejs', { 
-            shows: sdata, 
+            shows: sdata,
+            episodes: episodesData, 
             user: req.session.user
           });
         } else {
@@ -385,6 +393,40 @@ app.get('/show/:id', async (req, res) => {
   }
 });
 
+//Go to the episode page of episode you click on
+app.get('/episode/:id', async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+
+  if (accessTokenHasExpired(req)) {
+    try {
+      const { data } = await axios.get('/refresh_token');
+      req.session.access_token = data.access_token;
+      req.session.access_token_received_at = Date.now();
+    } catch (error) {
+      console.error('Error refreshing access token', error);
+    }
+  } else {
+    try {
+      const response = await fetch(`https://api.spotify.com/v1/episodes/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        // console.log(data); // Log the response data for debugging
+        res.render('main/episode.ejs', { episode: data, user: req.session.user });
+      } else {
+        res.send('Failed to retrieve episode. Status code: ' + response.status);
+      }
+    } catch (error) {
+      res.send('An error occurred: ' + error.message);
+    }
+  }
+});
+
 // This gets user's profile - using getUserProfile function
 app.get('/me', async (req, res) => {
   if(accessTokenHasExpired(req)){
@@ -414,3 +456,10 @@ async function getUserProfile(accessToken) {
   const userProfile = await response.json();
   return userProfile;
 }
+
+app.get('/contact',(req, res) => {
+  res.render('main/contact.ejs');
+});
+app.get('/about',(req, res) => {
+  res.render('main/about.ejs');
+});

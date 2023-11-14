@@ -1,6 +1,8 @@
 <%- include('../partials/head.ejs') %>
     <%- include('../partials/header.ejs')%>
     <body style="background-color: black; color: white">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
         <div class="bdy-container">
             <div class="title">
                 <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
@@ -15,6 +17,17 @@
                         <div class="track-info-big">
                             <h2 class="track-title-big"><%= track.name %></h2>
                             <p class="artist-name-big"><%= track.artists[0].name %></p>
+                        
+                            <%# Likes and dislikes %>
+                            <div class="post-ratings-container">
+                            <div class="post">
+                                <span class="material-symbols-outlined" style="font-size: 48px;"> thumb_up </span>
+                                <span class="post-rating-count" style="font-size: 48px;"> 0 </span>
+                            </div>
+                            <div class="post">
+                                <span class="material-symbols-outlined" style="font-size: 48px;"> thumb_down</span>
+                                <span class="post-rating-count" style="font-size: 48px;"> 0 </span>
+                            </div>
                         </div>
                     </div>
 

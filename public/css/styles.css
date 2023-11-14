@@ -164,3 +164,41 @@ body {
     font-size: 24px;
     font-family: DM Sans, sans-serif;
 }
+
+/********** Podcast Page************/
+.podcast{
+    display: flex;
+    /* justify-content: center; */
+    align-items: right;
+    justify-content: space-evenly;
+    max-width: 90%;
+}
+.jeffery{
+    max-width: 50%;
+}
+ 
+/********** Contact Page **********/
+.contact{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+.row > div{
+    max-width: 80%;
+}
+.row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    
+}
+.info{
+    display: flex;
+    flex-direction: column; 
+    padding: 20px;   
+}
+/********** About Page **********/
+.about{
+    display: flex;
+    justify-content: center;
+}

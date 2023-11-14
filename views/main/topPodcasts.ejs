@@ -1,38 +1,77 @@
 <%- include('../partials/head.ejs') %>
     <%- include('../partials/header.ejs')%>
-    <body style="background-color: black; color: white">
-        <div class="bdy-container">
-            <div class="title">
-                <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
-            </div>
-            <div class="body-container">
-                <%- include('../partials/nav.ejs') %>
-                <h1 class="topTracks-title">Saved Shows</h1>
-                <div class="topTracksList">
-                    
-                    <% if (shows && shows.items) { %>
-                    
-                        <ol>
-                            <% shows.items.forEach(function(show) { %>
-                                <a class="track-link" href="/show/<%= show.show.id %>">
-                                    
-                                    <li class="track-card">
-                                        <div class="album-cover">
-                                            <img src="<%= show.show.images[0].url%>" alt="Album cover">
-                                        </div>
-                                        <div class="track-info">
-                                            <h2 class="track-title"><%= show.show.name %></h2>
-                                            <p class="artist-name"><%= show.show.publisher %></p>
-                                        </div>
-                                    </li>
-                                </a>
-                            <% }); %>
-                        </ol>
-                        <% } else { %>
-                            <p>No tracks found.</p>
-                        <% } %>
 
+        <body style="background-color: black; color: white">
+            <div class="bdy-container">
+                <div class="title">
+                    <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
                 </div>
-            </div>
-        </div>
-    </body>
+                <div class="body-container">
+                    <%- include('../partials/nav.ejs') %>
+                        <div class="podcast">
+                            <div class="jeffery">
+                                <h2 class="topTracks-title">Saved Shows</h2>
+                                <div class="topTracksList">
+
+                                    <% if (shows && shows.items) { %>
+
+                                        <ol>
+                                            <% shows.items.forEach(function(show) { %>
+                                                <a class="track-link" href="/show/<%= show.show.id %>">
+
+                                                    <li class="track-card">
+                                                        <div class="album-cover">
+                                                            <img src="<%= show.show.images[0].url%>" alt="Album cover">
+                                                        </div>
+                                                        <div class="track-info">
+                                                            <h2 class="track-title">
+                                                                <%= show.show.name %>
+                                                            </h2>
+                                                            <p class="artist-name">
+                                                                <%= show.show.publisher %>
+                                                            </p>
+                                                        </div>
+                                                    </li>
+                                                </a>
+                                                <% }); %>
+                                        </ol>
+                                        <% } else { %>
+                                            <p>No shows found.</p>
+                                            <% } %>
+                                </div>
+                            </div>
+                            <div class="jeffery">
+                                <h2 class="topTracks-title">Saved Episodes</h2>
+                                <div class="topTracksList">
+
+                                    <% if (episodes && episodes.items) { %>
+
+                                        <ol>
+                                            <% episodes.items.forEach(function(episode) { %>
+                                                <a class="track-link" href="/episode/<%= episode.episode.id %>">
+
+                                                    <li class="track-card">
+                                                        <div class="album-cover">
+                                                            <img src="<%= episode.episode.images[0].url%>"
+                                                                alt="Album cover">
+                                                        </div>
+                                                        <div class="track-info">
+                                                            <h2 class="track-title">
+                                                                <%= episode.episode.name %>
+                                                            </h2>
+                                                            <p class="artist-name">
+                                                                Released <%= episode.episode.release_date %>
+                                                            </p>
+                                                        </div>
+                                                    </li>
+                                                </a>
+                                                <% }); %>
+                                        </ol>
+                                        <% } else { %>
+                                            <p>No episodes found.</p>
+                                            <% } %>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+        </body>

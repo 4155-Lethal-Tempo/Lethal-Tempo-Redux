@@ -1,0 +1,25 @@
+<%- include('../partials/head.ejs') %>
+    <%- include('../partials/header.ejs')%>
+    <body style="background-color: black; color: white">
+        <div class="bdy-container">
+            <div class="title">
+                <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
+            </div>
+            <div class="body-container">
+                <%- include('../partials/nav.ejs') %>
+                <% if (episode) { %>
+                    <div class="track-big">
+                        <div class="track-cover-big">
+                            <img src="<%= episode.images[0].url %>" alt="Track image">
+                        </div>
+                        <div class="track-info-big">
+                            <h2 class="track-title-big"><%= episode.name %></h2>
+                            <p class="artist-name-big"><%= episode.release_date %></p>
+                        </div>
+                    </div>
+
+                    <%# Comments will go here %>
+                <% } %>
+            </div>
+        </div>
+    </body>
