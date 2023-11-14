@@ -451,6 +451,8 @@ async function getUserProfile(accessToken) {
   return userProfile;
 }
 
+
+
 app.get('/contact',(req, res) => {
   res.render('main/contact.ejs');
 });
