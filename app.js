@@ -17,7 +17,7 @@ require('dotenv').config();
 require('isomorphic-fetch');
 
 mongoose.connect('mongodb://127.0.0.1:27017/testDB2', {useNewUrlParser: true, useUnifiedTopology: true})
-  .then(() => console.log('MongoDB Connected…'))
+  .then(() => console.log('\nMongoDB Connected…'))
   .catch(err => console.log(err)
 );
 
@@ -74,7 +74,6 @@ app.get('/callback', function(req, res) {
         // Get the user's profile
         const user = await getUserProfile(req.session.access_token);
         const spotify_id = user.id;
-        console.log(user.id);
 
         // Check if the user exists in the database
         let dbUser = await User.findOne({ spotify_id: spotify_id });
@@ -96,7 +95,7 @@ app.get('/callback', function(req, res) {
     });
 });
 
-// This page contains a link that sends you to the Spotify login page
+// This page contains a link that sends you to the Spotify login page - or redirects you to the home page if you're already logged in
 app.get('/', async (req, res)  => {
   var access_token = req.session.access_token;
 
@@ -106,7 +105,7 @@ app.get('/', async (req, res)  => {
     try {
       const user = await getUserProfile(req.session.access_token);
       req.session.user = user; // Store the user profile in the session - so we can access it later
-      console.log(`Successfully logged in ${user.display_name}`);
+      console.log(`\nSuccessfully logged in ${user.display_name}`);
       res.redirect('/home');
     } catch (error) {
       console.error('Error getting user profile:', error);
@@ -116,7 +115,7 @@ app.get('/', async (req, res)  => {
   }
 });
 
-// When you click on said line you are sent to this
+// This route handles the scope, client id, redirect uri, and state. It then redirects you to the callback to get the access token
 app.get('/login', (req, res) => {
     var state = generateRandomString(16);
     var scope = 'user-library-read ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
@@ -145,12 +144,8 @@ app.get('/logout', (req, res) => {
 app.get('/home', (req, res) => {
     res.render('main/landingPage.ejs', { user: req.session.user });
 });
-app.get('/topTracks', (req, res) => {
-  res.render('main/topTracks.ejs');
-});
-app.get('/topPodcasts', (req, res) => {
-  res.render('main/topPodcasts.ejs');
-});
+
+
 // Refreshes the access token in case it expires
 app.get('/refresh_token', function(req, res) {
 
@@ -300,7 +295,6 @@ function generateRandomString(length) {
 // Go to the song page of a track we clicked on
 app.get('/track/:id', async (req, res) => {
   const id = req.params.id;
-  console.log(id);
 
   if(accessTokenHasExpired(req)){
     try {
@@ -333,7 +327,6 @@ app.get('/track/:id', async (req, res) => {
 //Go to the podcast page of show you click on
 app.get('/show/:id', async (req, res) => {
   const id = req.params.id;
-  console.log(id);
 
   if (accessTokenHasExpired(req)) {
     try {
@@ -350,8 +343,6 @@ app.get('/show/:id', async (req, res) => {
           'Authorization': `Bearer ${req.session.access_token}`
         }
       });
-      console.log(response.status);
-      console.log(response.statusText);
 
       if (response.status === 200) {
         const data = await response.json();

@@ -13,7 +13,9 @@
                             <div class="profile-pic">
                                 <% if (user.images && user.images[1]) { %>
                                     <img src="<%= user.images[1].url %>" alt="Profile Picture">
-                                <% } %>
+                                <% } else { %>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png" alt="Profile Picture">
+                                <% } %>    
                             </div>
                             <div class="profile-name">
                                 <h2><%= user.display_name %></h2>
