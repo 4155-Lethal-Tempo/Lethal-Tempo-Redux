@@ -11,7 +11,7 @@
                     <div class="topTracksList" style="justify-content: space-evenly;">
                         <div class="list1">
                             <h2 class="topTracks-title">Saved Shows</h2>
-                            <% if (shows && shows.items) { %>
+                            <% if (shows && shows.items && shows.items.length > 0) { %>
                                 <ol>
                                     <% shows.items.forEach(function(show) { %>
                                         <a class="track-link" href="/show/<%= show.show.id %>">
@@ -33,12 +33,12 @@
                                         <% }); %>
                                 </ol>
                                 <% } else { %>
-                                    <p>No shows found.</p>
+                                    <p style="font-family: DM Sans, sans-serif;">No shows found, try following a podcast</p>
                                     <% } %>
                         </div>
                         <div class="list1">
                             <h2 class="topTracks-title">Saved Episodes</h2>
-                            <% if (episodes && episodes.items) { %>
+                            <% if (episodes && episodes.items && episodes.items.length > 0) { %>
                                 <ol>
                                     <% episodes.items.forEach(function(episode) { %>
                                         <a class="track-link" href="/episode/<%= episode.episode.id %>">
@@ -59,7 +59,7 @@
                                     <% }); %>
                                 </ol>
                                 <% } else { %>
-                                    <p>No episodes found.</p>
+                                    <p style="font-family: DM Sans, sans-serif;">No episodes found, try saving an episode</p>
                                 <% } %>
                         </div>
                     </div>
