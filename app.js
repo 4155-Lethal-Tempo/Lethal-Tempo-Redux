@@ -554,6 +554,11 @@ app.get('/like/:trackId', async (req, res) => {
   if (!user.liked_tracks.includes(trackId)) {
     user.liked_tracks.push(trackId);
     track.likes += 1;
+  } else {
+    // If the user has already liked the track, remove the like
+    const index = user.liked_tracks.indexOf(trackId);
+    user.liked_tracks.splice(index, 1);
+    track.likes -= 1;
   }
 
   // Save the track and user in the database
@@ -589,6 +594,11 @@ app.get('/dislike/:trackId', async (req, res) => {
   if (!user.disliked_tracks.includes(trackId)) {
     user.disliked_tracks.push(trackId);
     track.dislikes += 1;
+  } else {
+    // If the user has already disliked the track, remove the dislike
+    const index = user.disliked_tracks.indexOf(trackId);
+    user.disliked_tracks.splice(index, 1);
+    track.dislikes -= 1;
   }
 
   // Save the track and user in the database
