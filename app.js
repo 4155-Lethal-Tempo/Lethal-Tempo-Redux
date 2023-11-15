@@ -521,7 +521,11 @@ app.get('/rated-tracks', async (req, res) => {
     return response.json();
   }));
 
-  res.render('main/rated-tracks.ejs', { likedTracks: likedTracksDetails, dislikedTracks: dislikedTracksDetails });
+  res.render('main/rated-tracks.ejs', { 
+    likedTracks: likedTracksDetails, 
+    dislikedTracks: dislikedTracksDetails, 
+    user: req.session.user
+  });
 });
 
 /********** Likes and Dislikes **********/
