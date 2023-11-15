@@ -253,9 +253,14 @@ app.get('/top-podcasts', async (req, res) => {
   app.get('/top-tracks', async (req, res) => {
     if(accessTokenHasExpired(req)){
       try {
-        const { data } = await axios.get('/refresh_token');
-        req.session.access_token = data.access_token;
-        req.session.access_token_received_at = Date.now();
+        const response = await fetch('/refresh_token');
+        if (response.ok) {
+          const data = await response.json();
+          req.session.access_token = data.access_token;
+          req.session.access_token_received_at = Date.now();
+        } else {
+          console.error('Error refreshing access token', response.statusText);
+        }
       } catch (error) {
           console.error('Error refreshing access token', error);
       }
@@ -305,9 +310,14 @@ app.get('/track/:id', async (req, res) => {
 
   if(accessTokenHasExpired(req)){
     try {
-      const { data } = await axios.get('/refresh_token');
-      req.session.access_token = data.access_token;
-      req.session.access_token_received_at = Date.now();
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
     } catch (error) {
         console.error('Error refreshing access token', error);
     }
@@ -360,11 +370,16 @@ app.get('/show/:id', async (req, res) => {
 
   if (accessTokenHasExpired(req)) {
     try {
-      const { data } = await axios.get('/refresh_token');
-      req.session.access_token = data.access_token;
-      req.session.access_token_received_at = Date.now();
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
     } catch (error) {
-      console.error('Error refreshing access token', error);
+        console.error('Error refreshing access token', error);
     }
   } else {
     try {
@@ -394,11 +409,16 @@ app.get('/episode/:id', async (req, res) => {
 
   if (accessTokenHasExpired(req)) {
     try {
-      const { data } = await axios.get('/refresh_token');
-      req.session.access_token = data.access_token;
-      req.session.access_token_received_at = Date.now();
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
     } catch (error) {
-      console.error('Error refreshing access token', error);
+        console.error('Error refreshing access token', error);
     }
   } else {
     try {
@@ -425,9 +445,14 @@ app.get('/episode/:id', async (req, res) => {
 app.get('/me', async (req, res) => {
   if(accessTokenHasExpired(req)){
     try {
-      const { data } = await axios.get('/refresh_token');
-      req.session.access_token = data.access_token;
-      req.session.access_token_received_at = Date.now();
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
     } catch (error) {
         console.error('Error refreshing access token', error);
     }
@@ -454,11 +479,27 @@ async function getUserProfile(accessToken) {
 app.get('/contact',(req, res) => {
   res.render('main/contact.ejs');
 });
+
 app.get('/about',(req, res) => {
   res.render('main/about.ejs');
 });
 
 app.get('/rated-tracks', async (req, res) => {
+  if (accessTokenHasExpired(req)) {
+    try {
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error refreshing access token', error);
+    }
+  }
+
   const userId = req.session.userDB.spotify_id;
   let user = await User.findOne({ spotify_id: userId });
 
