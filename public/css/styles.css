@@ -164,24 +164,13 @@ body {
     font-size: 24px;
     font-family: DM Sans, sans-serif;
 }
-
-/********** Podcast Page************/
-.podcast{
-    display: flex;
-    /* justify-content: center; */
-    align-items: right;
-    justify-content: space-evenly;
-    max-width: 90%;
-}
-.jeffery{
-    max-width: 50%;
-}
  
 /********** Contact Page **********/
 .contact{
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    font-family: DM Sans, sans-serif;
 }
 .row > div{
     max-width: 80%;
@@ -190,12 +179,15 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    width: 80%;
     
 }
 .info{
     display: flex;
     flex-direction: column; 
-    padding: 20px;   
+    text-align: start;
+    padding: 20px;
+    margin-right: 25px;   
 }
 /********** About Page **********/
 .about{

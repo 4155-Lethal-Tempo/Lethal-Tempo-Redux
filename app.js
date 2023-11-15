@@ -477,11 +477,11 @@ async function getUserProfile(accessToken) {
 }
 
 app.get('/contact',(req, res) => {
-  res.render('main/contact.ejs');
+  res.render('main/contact.ejs', { user: req.session.user });
 });
 
 app.get('/about',(req, res) => {
-  res.render('main/about.ejs');
+  res.render('main/about.ejs', { user: req.session.user });
 });
 
 app.get('/rated-tracks', async (req, res) => {

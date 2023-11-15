@@ -8,70 +8,60 @@
                 </div>
                 <div class="body-container">
                     <%- include('../partials/nav.ejs') %>
-                        <div class="podcast">
-                            <div class="jeffery">
-                                <h2 class="topTracks-title">Saved Shows</h2>
-                                <div class="topTracksList">
+                    <div class="topTracksList" style="justify-content: space-evenly;">
+                        <div class="list1">
+                            <h2 class="topTracks-title">Saved Shows</h2>
+                            <% if (shows && shows.items) { %>
+                                <ol>
+                                    <% shows.items.forEach(function(show) { %>
+                                        <a class="track-link" href="/show/<%= show.show.id %>">
 
-                                    <% if (shows && shows.items) { %>
-
-                                        <ol>
-                                            <% shows.items.forEach(function(show) { %>
-                                                <a class="track-link" href="/show/<%= show.show.id %>">
-
-                                                    <li class="track-card">
-                                                        <div class="album-cover">
-                                                            <img src="<%= show.show.images[0].url%>" alt="Album cover">
-                                                        </div>
-                                                        <div class="track-info">
-                                                            <h2 class="track-title">
-                                                                <%= show.show.name %>
-                                                            </h2>
-                                                            <p class="artist-name">
-                                                                <%= show.show.publisher %>
-                                                            </p>
-                                                        </div>
-                                                    </li>
-                                                </a>
-                                                <% }); %>
-                                        </ol>
-                                        <% } else { %>
-                                            <p>No shows found.</p>
-                                            <% } %>
-                                </div>
-                            </div>
-                            <div class="jeffery">
-                                <h2 class="topTracks-title">Saved Episodes</h2>
-                                <div class="topTracksList">
-
-                                    <% if (episodes && episodes.items) { %>
-
-                                        <ol>
-                                            <% episodes.items.forEach(function(episode) { %>
-                                                <a class="track-link" href="/episode/<%= episode.episode.id %>">
-
-                                                    <li class="track-card">
-                                                        <div class="album-cover">
-                                                            <img src="<%= episode.episode.images[0].url%>"
-                                                                alt="Album cover">
-                                                        </div>
-                                                        <div class="track-info">
-                                                            <h2 class="track-title">
-                                                                <%= episode.episode.name %>
-                                                            </h2>
-                                                            <p class="artist-name">
-                                                                Released <%= episode.episode.release_date %>
-                                                            </p>
-                                                        </div>
-                                                    </li>
-                                                </a>
-                                                <% }); %>
-                                        </ol>
-                                        <% } else { %>
-                                            <p>No episodes found.</p>
-                                            <% } %>
-                                </div>
-                            </div>
+                                            <li class="track-card">
+                                                <div class="album-cover">
+                                                    <img src="<%= show.show.images[0].url%>" alt="Album cover">
+                                                </div>
+                                                <div class="track-info">
+                                                    <h2 class="track-title">
+                                                        <%= show.show.name %>
+                                                    </h2>
+                                                    <p class="artist-name">
+                                                        <%= show.show.publisher %>
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        </a>
+                                        <% }); %>
+                                </ol>
+                                <% } else { %>
+                                    <p>No shows found.</p>
+                                    <% } %>
                         </div>
+                        <div class="list1">
+                            <h2 class="topTracks-title">Saved Episodes</h2>
+                            <% if (episodes && episodes.items) { %>
+                                <ol>
+                                    <% episodes.items.forEach(function(episode) { %>
+                                        <a class="track-link" href="/episode/<%= episode.episode.id %>">
+                                            <li class="track-card">
+                                                <div class="album-cover">
+                                                    <img src="<%= episode.episode.images[0].url%>" alt="Album cover">
+                                                </div>
+                                                <div class="track-info">
+                                                    <h2 class="track-title">
+                                                        <%= episode.episode.name %>
+                                                    </h2>
+                                                    <p class="artist-name">
+                                                        Released <%= episode.episode.release_date %>
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        </a>
+                                    <% }); %>
+                                </ol>
+                                <% } else { %>
+                                    <p>No episodes found.</p>
+                                <% } %>
+                        </div>
+                    </div>
                 </div>
         </body>
