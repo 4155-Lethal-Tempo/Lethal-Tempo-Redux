@@ -27,13 +27,14 @@ VSCode: https://code.visualstudio.com/download
 
 6: On the top left side click on your name and navigate to your dashboard:
 <p align="center">
-<img width="250" alt="image" src="https://github.com/4155-Lethal-Tempo/Lethal-Tempo-Redux/assets/112443437/647be87b-dcd0-4a9c-81db-439256700466">
+  <img width="250" alt="image" src="https://github.com/4155-Lethal-Tempo/Lethal-Tempo-Redux/assets/112443437/647be87b-dcd0-4a9c-81db-439256700466">
 </p>
 
 7: You will then be taken to a page that looks like this one, click create app:
 
-<img width="953" alt="image" src="https://github.com/4155-Lethal-Tempo/Lethal-Tempo-Redux/assets/112443437/5286aed7-eac1-486d-8a6b-5a4f152a7c1a">
-
+<p align="center">
+  <img width="953" alt="image" src="https://github.com/4155-Lethal-Tempo/Lethal-Tempo-Redux/assets/112443437/5286aed7-eac1-486d-8a6b-5a4f152a7c1a">
+</p>
 
 8: Fill in your app name, description, and select Web API (You do not need to fill in the website entry). Your redirect uri will be `http://localhost:8084/callback`
 
