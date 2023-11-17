@@ -26,9 +26,9 @@ VSCode: https://code.visualstudio.com/download
 5: Go to the following website and sign up for a developer account: https://developer.spotify.com/
 
 6: On the top left side click on your name and navigate to your dashboard:
-
-<img width="250" align="center" alt="image" src="https://github.com/4155-Lethal-Tempo/Lethal-Tempo-Redux/assets/112443437/647be87b-dcd0-4a9c-81db-439256700466">
-
+<p align="center">
+<img width="250" alt="image" src="https://github.com/4155-Lethal-Tempo/Lethal-Tempo-Redux/assets/112443437/647be87b-dcd0-4a9c-81db-439256700466">
+</p>
 
 7: You will then be taken to a page that looks like this one, click create app:
 
