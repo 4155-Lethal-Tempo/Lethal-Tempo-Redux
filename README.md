@@ -4,7 +4,9 @@
 
 1: NodeJS: https://nodejs.org/en/download/current
 
-2: A Spotify Account
+2: MongoDB And MongoDB Compass: https://www.mongodb.com/docs/v2.6/tutorial/install-mongodb-on-windows/
+
+3: A Spotify Account
 
 **Recommended IDE**
 
