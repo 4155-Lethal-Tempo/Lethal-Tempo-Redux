@@ -20,7 +20,7 @@ require('dotenv').config();
 require('isomorphic-fetch');
 
 // Local DB: mongodb://127.0.0.1:27017/testDB2
-mongoose.connect('mongodb+srv://ccastrog:Cguzman5%40@cluster0.dzpiztl.mongodb.net/', {
+mongoose.connect('ENTER YOUR DB NAME HERE', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
