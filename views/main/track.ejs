@@ -15,6 +15,9 @@
                         <div class="track-info-big">
                             <h2 class="track-title-big"><%= track.name %></h2>
                             <p class="artist-name-big"><%= track.artists[0].name %></p>
+                            <p class="artist-name-big">Album: <%= track.album.name %></p>
+                            <p class="artist-name-big">Released: <%= track.album.release_date %></p>
+                            <p class="artist-name-big">Spotify Song Popularity (0-100): <%= track.popularity %></p>
                         
                             <%# Likes and dislikes %>
                             <div class="post-ratings-container">
@@ -38,8 +41,33 @@
                                   </div>
                             </div>
                         </div>
-                    <%# Comments will go here %>
+                  </div>
+                  <form action="/comment/<%= track.id %>" method="POST">
+                    <div class="comments" style="display: flex; flex-direction: column;">
+                      <textarea name="comment" id="comment" cols="90" rows="5" placeholder="Enter your comments" style="resize: none;"></textarea>
+                    </div>
+                    <button type="submit" class="commentBut">Submit Comment</button>
+                  </form>
+                  <%# Comments will go here %>
                 <% } %>
+
+                  <!-- Display comments -->
+                <% if (trackDB.comments && trackDB.comments.length > 0) { %>
+                  <div class="comments-list">
+                    <% trackDB.comments.forEach(comment => { %>
+                      <div class="comment">
+                        <p>
+                          <strong><%= comment.user.display_name %>:</strong> <%= comment.comment %>
+                        </p>
+                        <% if (comment.user.spotify_id === userDB.spotify_id) { %>
+                          <form action="/delete-track-comment/<%= trackDB.track_id %>/<%= comment._id %>" method="post">
+                            <button type="submit" class="DeleteBut">Delete</button>
+                          </form>
+                        <% } %>
+                      </div>
+                    <% }); %>
+                    <% } %>
+                  </div>
+
                 </div>
-            </div>
     </body>

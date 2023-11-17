@@ -193,4 +193,6 @@ body {
 .about{
     display: flex;
     justify-content: center;
+    font-family: DM Sans, sans-serif;
+    max-width: 80%;
 }

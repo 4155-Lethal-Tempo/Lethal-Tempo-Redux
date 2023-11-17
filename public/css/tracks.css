@@ -120,6 +120,13 @@ li.track-card:hover {
     margin-right: 50px;
 }
 
+.post-ratings-container {
+    display: flex;
+    justify-content: end;
+    padding: 12px 0;
+    margin-right: 620px;
+}
+
 .post-selected > .material-symbols-outlined,
 .post-selected > .post-rating-count { 
     font-variation-settings:
@@ -128,4 +135,63 @@ li.track-card:hover {
 
 .post:not(.post-selected) > .material-symbols-outlined:hover {
     color: #000000
+}
+
+#comment {
+    background-color: #3d3d3d;
+    color: #FFFFFF;
+    font-family: DM Sans, sans-serif;
+    border: none;
+    outline: none;
+    border-radius: 15px;
+    padding: 10px;
+    font-size: 30px;
+}
+
+#comment::placeholder {
+    color: #FFFFFF;
+    font-family: DM, sans-serif;
+    font-variation-settings:
+        'FILL' 1;
+    opacity: 0.5;
+  }
+
+.commentBut {
+    border-radius: 10px;
+    background-color: transparent;
+    color: #FFFFFF;
+    border-color: #FFFFFF;
+    font-size: 30px;
+    align-items: right;
+    border-width: thin;
+    float: right;
+    margin-top: 20px;
+}
+
+.comments-list {
+    display: flex;
+    width: 80%;
+    float: left;
+    flex-direction: column;
+    
+}
+
+.comment {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment > p {
+    font-family: DM, sans-serif;
+    font-size: 30px;
+}
+
+.DeleteBut {
+    border: none;
+    background-color: transparent;
+    color: red;
+    border-color: #FFFFFF;
+    font-size: 15px;
+    align-items: left;
 }

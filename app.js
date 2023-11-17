@@ -3,7 +3,7 @@
   Using Spotify API with JavaScript - https://medium.com/@awoldt/using-spotify-api-with-javascript-9dd839407f12
   Spotify API OAuth - https://www.youtube.com/watch?v=olY_2MW4Eik&t=1223s
   Learn Express JS in 35 minutes - https://www.youtube.com/watch?v=SccSCuHhOw0  
-*/                
+*/
 
 const express = require('express');
 const session = require('express-session');
@@ -12,6 +12,7 @@ const querystring = require('node:querystring');
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const Track = require('./models/track');
+const Show = require('./models/show');
 const Comment = require('./models/comment');
 
 const app = express();
@@ -19,15 +20,22 @@ require('dotenv').config();
 require('isomorphic-fetch');
 
 // Local DB: mongodb://127.0.0.1:27017/testDB2
-mongoose.connect('mongodb://127.0.0.1:27017/testDB2')
-  .then(() => console.log('\nMongoDB Connected…'))
+mongoose.connect('mongodb+srv://ccastrog:Cguzman5%40@cluster0.dzpiztl.mongodb.net/', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+  .then(() => {
+    console.log('\nMongoDB Connected…')
+    const db = mongoose.connection;
+    const testDB2 = db.collection('tracks')
+  })
   .catch(err => console.log(err)
-);
+  );
 
 const port = 8084;
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
 
 app.use(session({
@@ -37,68 +45,70 @@ app.use(session({
   cookie: { secure: false } // Change to true when using HTTPS
 }));
 
+app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static('public'));
 
 // This is the callback page that is called after you login
 // It is supposed to give you an access token and a refresh token
 // We'll use this to make API calls
-app.get('/callback', function(req, res) {
-    var code = req.query.code || null;
-    var state = req.query.state || null;
-  
-    if (state === null) {
-      res.redirect('/#' +
-        querystring.stringify({
-          error: 'state_mismatch'
-        }));
-    } else {
-      var authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        form: {
-          code: code,
-          redirect_uri: process.env.REDIRECT_URI,
-          grant_type: 'authorization_code'
-        },
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Basic ' + (new Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64'))
-        },
-        json: true
-      };
-    }
+app.get('/callback', function (req, res) {
+  var code = req.query.code || null;
+  var state = req.query.state || null;
 
-    request.post(authOptions, async function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-        req.session.access_token = body.access_token;
-        req.session.refresh_token = body.refresh_token;
-        req.session.access_token_received_at = Date.now();
-        
-        // Get the user's profile
-        const user = await getUserProfile(req.session.access_token);
-        const spotify_id = user.id;
+  if (state === null) {
+    res.redirect('/#' +
+      querystring.stringify({
+        error: 'state_mismatch'
+      }));
+  } else {
+    var authOptions = {
+      url: 'https://accounts.spotify.com/api/token',
+      form: {
+        code: code,
+        redirect_uri: process.env.REDIRECT_URI,
+        grant_type: 'authorization_code'
+      },
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + (new Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64'))
+      },
+      json: true
+    };
+  }
 
-        // Check if the user exists in the database
-        let dbUser = await User.findOne({ spotify_id: spotify_id });
+  request.post(authOptions, async function (error, response, body) {
+    if (!error && response.statusCode === 200) {
+      req.session.access_token = body.access_token;
+      req.session.refresh_token = body.refresh_token;
+      req.session.access_token_received_at = Date.now();
 
-        // If the user doesn't exist, create a new document/entry in the database
-        if (!dbUser) {
-          dbUser = new User({ spotify_id: spotify_id });
-          await dbUser.save();
-        } else {
-          // If the user exists, save the user's ID in the session
-          req.session.userDB = dbUser
-        }
+      // Get the user's profile
+      const user = await getUserProfile(req.session.access_token);
+      const spotify_id = user.id;
 
-        res.redirect('/');
+      // Check if the user exists in the database
+      let dbUser = await User.findOne({ spotify_id: spotify_id });
+
+      // If the user doesn't exist, create a new document/entry in the database
+      if (!dbUser) {
+        dbUser = new User({ spotify_id: spotify_id });
+        await dbUser.save();
       } else {
-        console.log(response.body);
-        console.log(response.statusMessage);
+        // If the user exists, save the user's ID in the session
+        req.session.userDB = dbUser
       }
-    });
+
+      res.redirect('/');
+    } else {
+      console.log(response.body);
+      console.log(response.statusMessage);
+    }
+  });
 });
 
 // This page contains a link that sends you to the Spotify login page - or redirects you to the home page if you're already logged in
-app.get('/', async (req, res)  => {
+app.get('/', async (req, res) => {
   var access_token = req.session.access_token;
 
   if (access_token == null || access_token == '' || access_token == undefined) {
@@ -119,10 +129,10 @@ app.get('/', async (req, res)  => {
 
 // This route handles the scope, client id, redirect uri, and state. It then redirects you to the callback to get the access token
 app.get('/login', (req, res) => {
-    var state = generateRandomString(16);
-    var scope = 'user-library-read ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
+  var state = generateRandomString(16);
+  var scope = 'user-library-read ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
 
-    res.redirect('https://accounts.spotify.com/authorize?' +
+  res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
       client_id: process.env.CLIENT_ID,
@@ -134,12 +144,12 @@ app.get('/login', (req, res) => {
 
 // logs you out - work in progress
 app.get('/logout', (req, res) => {
-  
+
   // Check if there is a session
-  if(req.session.access_token){
+  if (req.session.access_token) {
     console.log(`\nLogging out ${req.session.user.display_name}`);
   }
-  
+
   // destroy the session
   req.session.destroy();
 
@@ -148,39 +158,39 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-    res.render('main/landingPage.ejs', { user: req.session.user });
+  res.render('main/landingPage.ejs', { user: req.session.user });
 });
 
 // Refreshes the access token in case it expires
-app.get('/refresh_token', function(req, res) {
+app.get('/refresh_token', function (req, res) {
 
-    var refresh_token = req.session.refresh_token;
-    var authString = process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET;
-    
-    var authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + authString.toString('base64') 
-      },
-      form: {
-        grant_type: 'refresh_token',
-        refresh_token: refresh_token
-      },
-      json: true
-    };
-  
-    
-    request.post(authOptions, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-        req.session.access_token = body.access_token;
-        req.session.refresh_token = body.refresh_token;
-        res.send({
-          'access_token': req.session.access_token,
-          'refresh_token': req.session.refresh_token
-        });
-      }
-    });
+  var refresh_token = req.session.refresh_token;
+  var authString = process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET;
+
+  var authOptions = {
+    url: 'https://accounts.spotify.com/api/token',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + authString.toString('base64')
+    },
+    form: {
+      grant_type: 'refresh_token',
+      refresh_token: refresh_token
+    },
+    json: true
+  };
+
+
+  request.post(authOptions, function (error, response, body) {
+    if (!error && response.statusCode === 200) {
+      req.session.access_token = body.access_token;
+      req.session.refresh_token = body.refresh_token;
+      res.send({
+        'access_token': req.session.access_token,
+        'refresh_token': req.session.refresh_token
+      });
+    }
+  });
 });
 
 // Checks if the access token has expired - returns true if it has, false otherwise
@@ -197,29 +207,29 @@ function accessTokenHasExpired(req) {
 
 // Generates a random string containing numbers and letters - used for state
 function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    const charactersLength = characters.length;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const charactersLength = characters.length;
 
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charactersLength);
-        result += characters.charAt(randomIndex);
-    }
-    return result;
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charactersLength);
+    result += characters.charAt(randomIndex);
+  }
+  return result;
 }
-  
+
 app.get('/top-podcasts', async (req, res) => {
-  if(accessTokenHasExpired(req)){
+  if (accessTokenHasExpired(req)) {
     try {
       const { data } = await axios.get('/refresh_token');
       req.session.access_token = data.access_token;
       req.session.access_token_received_at = Date.now();
     } catch (error) {
-        console.error('Error refreshing access token', error);
+      console.error('Error refreshing access token', error);
     }
   } else {
     try {
-      const response = await fetch('https://api.spotify.com/v1/me/shows',{
+      const response = await fetch('https://api.spotify.com/v1/me/shows', {
         headers: {
           'Authorization': `Bearer ${req.session.access_token}`
         }
@@ -235,80 +245,23 @@ app.get('/top-podcasts', async (req, res) => {
       if (response.status === 200 && episodeResponse.status === 200) {
         const sdata = await response.json();
         const episodesData = await episodeResponse.json();
-        res.render('main/topPodcasts.ejs', { 
+        res.render('main/topPodcasts.ejs', {
           shows: sdata,
-          episodes: episodesData, 
+          episodes: episodesData,
           user: req.session.user
         });
       } else {
-          res.send('Failed to retrieve podcasts. Status code: ' + response.status);
-        }
+        res.send('Failed to retrieve podcasts. Status code: ' + response.status);
+      }
     } catch (error) {
       res.send('An error occurred: ' + error.message);
     }
   }
-  
+
 });
 
-  app.get('/top-tracks', async (req, res) => {
-    if(accessTokenHasExpired(req)){
-      try {
-        const response = await fetch('/refresh_token');
-        if (response.ok) {
-          const data = await response.json();
-          req.session.access_token = data.access_token;
-          req.session.access_token_received_at = Date.now();
-        } else {
-          console.error('Error refreshing access token', response.statusText);
-        }
-      } catch (error) {
-          console.error('Error refreshing access token', error);
-      }
-    } else {
-      try {
-        const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50',{
-          headers: {
-            'Authorization': `Bearer ${req.session.access_token}`
-          }
-        });
-    
-        const shortTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50', {
-          headers: {
-            'Authorization': `Bearer ${req.session.access_token}`
-          }
-        });
-    
-        const mediumTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50', {
-          headers: {
-            'Authorization': `Bearer ${req.session.access_token}`
-          }
-        });
-    
-        if (response.status === 200 && shortTermResponse.status === 200 && mediumTermResponse.status === 200) {
-          const data = await response.json();
-          const shortTermData = await shortTermResponse.json();
-          const mediumTermData = await mediumTermResponse.json();
-    
-          res.render('main/topTracks.ejs', { 
-            tracks: data, 
-            shortTermTracks: shortTermData, 
-            mediumTermTracks: mediumTermData,
-            user: req.session.user
-          });
-        } else {
-          res.send('Failed to retrieve top tracks. Status code: ' + response.status);
-        }
-      } catch (error) {
-        res.send('An error occurred: ' + error.message);
-      }
-    }
-});
-
-// Go to the song page of a track we clicked on
-app.get('/track/:id', async (req, res) => {
-  const id = req.params.id;
-
-  if(accessTokenHasExpired(req)){
+app.get('/top-tracks', async (req, res) => {
+  if (accessTokenHasExpired(req)) {
     try {
       const response = await fetch('/refresh_token');
       if (response.ok) {
@@ -319,7 +272,64 @@ app.get('/track/:id', async (req, res) => {
         console.error('Error refreshing access token', response.statusText);
       }
     } catch (error) {
-        console.error('Error refreshing access token', error);
+      console.error('Error refreshing access token', error);
+    }
+  } else {
+    try {
+      const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50', {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+      const shortTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50', {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+      const mediumTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50', {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+
+      if (response.status === 200 && shortTermResponse.status === 200 && mediumTermResponse.status === 200) {
+        const data = await response.json();
+        const shortTermData = await shortTermResponse.json();
+        const mediumTermData = await mediumTermResponse.json();
+
+        res.render('main/topTracks.ejs', {
+          tracks: data,
+          shortTermTracks: shortTermData,
+          mediumTermTracks: mediumTermData,
+          user: req.session.user
+        });
+      } else {
+        res.send('Failed to retrieve top tracks. Status code: ' + response.status);
+      }
+    } catch (error) {
+      res.send('An error occurred: ' + error.message);
+    }
+  }
+});
+
+// Go to the song page of a track we clicked on
+app.get('/track/:id', async (req, res) => {
+  const id = req.params.id;
+
+  if (accessTokenHasExpired(req)) {
+    try {
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error refreshing access token', error);
     }
   } else {
     try {
@@ -338,7 +348,7 @@ app.get('/track/:id', async (req, res) => {
 
         // If track doesn't exist, create a new track
         if (!track) {
-          track = new Track({ track_id: id });
+          track = new Track({ track_id: id, comments: [] });
           await track.save();
         }
 
@@ -349,9 +359,9 @@ app.get('/track/:id', async (req, res) => {
         // update the user we have stored in the session - just in case
         req.session.userDB = await User.findOne({ spotify_id: spotify_id });
 
-        res.render('main/track.ejs', { 
-          track: data, 
-          user: req.session.user, 
+        res.render('main/track.ejs', {
+          track: data,
+          user: req.session.user,
           trackDB: track,
           userDB: req.session.userDB
         });
@@ -379,7 +389,7 @@ app.get('/show/:id', async (req, res) => {
         console.error('Error refreshing access token', response.statusText);
       }
     } catch (error) {
-        console.error('Error refreshing access token', error);
+      console.error('Error refreshing access token', error);
     }
   } else {
     try {
@@ -392,7 +402,29 @@ app.get('/show/:id', async (req, res) => {
       if (response.status === 200) {
         const data = await response.json();
         // console.log(data); // Log the response data for debugging
-        res.render('main/show.ejs', { show: data, user: req.session.user });
+
+        // Check if track exists in the database
+        let show = await Show.findOne({ show_id: id });
+
+        // If track doesn't exist, create a new track
+        if (!show) {
+          show = new Show({ show_id: id, comments: [] });
+          await show.save();
+        }
+
+        // Get the user's profile
+        const userDB = await getUserProfile(req.session.access_token);
+        const spotify_id = userDB.id;
+
+        // update the user we have stored in the session - just in case
+        req.session.userDB = await User.findOne({ spotify_id: spotify_id });
+
+        res.render('main/show.ejs', {
+          show: data,
+          user: req.session.user,
+          showDB: show,
+          userDB: req.session.userDB
+        });
       } else {
         res.send('Failed to retrieve show. Status code: ' + response.status);
       }
@@ -418,7 +450,7 @@ app.get('/episode/:id', async (req, res) => {
         console.error('Error refreshing access token', response.statusText);
       }
     } catch (error) {
-        console.error('Error refreshing access token', error);
+      console.error('Error refreshing access token', error);
     }
   } else {
     try {
@@ -443,7 +475,7 @@ app.get('/episode/:id', async (req, res) => {
 
 // This gets user's profile - using getUserProfile function
 app.get('/me', async (req, res) => {
-  if(accessTokenHasExpired(req)){
+  if (accessTokenHasExpired(req)) {
     try {
       const response = await fetch('/refresh_token');
       if (response.ok) {
@@ -454,7 +486,7 @@ app.get('/me', async (req, res) => {
         console.error('Error refreshing access token', response.statusText);
       }
     } catch (error) {
-        console.error('Error refreshing access token', error);
+      console.error('Error refreshing access token', error);
     }
   } else {
     res.render('main/profile.ejs', { user: req.session.user });
@@ -464,7 +496,7 @@ app.get('/me', async (req, res) => {
 
 async function getUserProfile(accessToken) {
   const response = await fetch('https://api.spotify.com/v1/me', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
+    headers: { 'Authorization': 'Bearer ' + accessToken }
   });
 
   if (response.status !== 200) {
@@ -476,11 +508,11 @@ async function getUserProfile(accessToken) {
   return userProfile;
 }
 
-app.get('/contact',(req, res) => {
+app.get('/contact', (req, res) => {
   res.render('main/contact.ejs', { user: req.session.user });
 });
 
-app.get('/about',(req, res) => {
+app.get('/about', (req, res) => {
   res.render('main/about.ejs', { user: req.session.user });
 });
 
@@ -500,6 +532,7 @@ app.get('/rated-tracks', async (req, res) => {
     }
   }
 
+  // FIX THIS
   const userId = req.session.userDB.spotify_id;
   let user = await User.findOne({ spotify_id: userId });
 
@@ -520,15 +553,17 @@ app.get('/rated-tracks', async (req, res) => {
     });
     return response.json();
   }));
+  //console.log(likedTracksDetails);
 
-  res.render('main/rated-tracks.ejs', { 
-    likedTracks: likedTracksDetails, 
-    dislikedTracks: dislikedTracksDetails, 
+  res.render('main/rated-tracks.ejs', {
+    likedTracks: likedTracksDetails,
+    dislikedTracks: dislikedTracksDetails,
     user: req.session.user
   });
 });
 
 /********** Likes and Dislikes **********/
+//likes and dislikes for tracks
 app.get('/like/:trackId', async (req, res) => {
   // Get trackID and userID
   const trackId = req.params.trackId;
@@ -540,7 +575,7 @@ app.get('/like/:trackId', async (req, res) => {
 
   // If the track doesn't exist, create a new track
   if (!track) {
-    track = new Track({ track_id: trackId });
+    track = new Track({ track_id: trackId, comments: [] });
   }
 
   // If the user has already disliked the track, remove the dislike
@@ -580,7 +615,7 @@ app.get('/dislike/:trackId', async (req, res) => {
 
   // If the track doesn't exist, create a new track
   if (!track) {
-    track = new Track({ track_id: trackId });
+    track = new Track({ track_id: trackId, comments: [] });
   }
 
   // If the user has already liked the track, remove the like
@@ -608,3 +643,291 @@ app.get('/dislike/:trackId', async (req, res) => {
   // Redirect to the track page - so we can see the changes
   res.redirect(`/track/${trackId}`);
 });
+
+
+
+
+
+
+
+//like and dislike for shows 
+app.get('/like-show/:showId', async (req, res) => {
+  // Get trackID and userID
+  const showId = req.params.showId;
+  const userId = req.session.userDB.spotify_id;
+
+  // Find the user and track in the database
+  let user = await User.findOne({ spotify_id: userId });
+  let show = await Show.findOne({ show_id: showId });
+
+  // If the track doesn't exist, create a new track
+  if (!show) {
+    show = new Show({ show_id: showId, comments: [] });
+  }
+
+  // If the user has already disliked the track, remove the dislike
+  if (user.disliked_shows.includes(showId)) {
+    const index = user.disliked_shows.indexOf(showId);
+    user.disliked_shows.splice(index, 1);
+    show.dislikes -= 1;
+  }
+
+  // If the user hasn't liked the track, add the like
+  if (!user.liked_shows.includes(showId)) {
+    user.liked_shows.push(showId);
+    show.likes += 1;
+  } else {
+    // If the user has already liked the track, remove the like
+    const index = user.liked_shows.indexOf(showId);
+    user.liked_shows.splice(index, 1);
+    show.likes -= 1;
+  }
+
+  // Save the track and user in the database
+  await show.save();
+  await user.save();
+
+  // Redirect to the track page - so we can see the changes
+  res.redirect(`/show/${showId}`);
+});
+
+app.get('/dislike-show/:showId', async (req, res) => {
+  // Get trackID and userID
+  const showId = req.params.showId;
+  const userId = req.session.userDB.spotify_id;
+
+  // Find the user and track in the database
+  let user = await User.findOne({ spotify_id: userId });
+  let show = await Show.findOne({ show_id: showId });
+
+  // If the track doesn't exist, create a new track
+  if (!show) {
+    show = new Show({ show_id: showId, comments: [] });
+  }
+
+  // If the user has already liked the track, remove the like
+  if (user.liked_shows.includes(showId)) {
+    const index = user.liked_shows.indexOf(showId);
+    user.liked_shows.splice(index, 1);
+    show.likes -= 1;
+  }
+
+  // If the user hasn't disliked the track, add the dislike
+  if (!user.disliked_shows.includes(showId)) {
+    user.disliked_shows.push(showId);
+    show.dislikes += 1;
+  } else {
+    // If the user has already disliked the track, remove the dislike
+    const index = user.disliked_shows.indexOf(showId);
+    user.disliked_shows.splice(index, 1);
+    show.dislikes -= 1;
+  }
+
+  // Save the track and user in the database
+  await show.save();
+  await user.save();
+
+  // Redirect to the track page - so we can see the changes
+  res.redirect(`/show/${showId}`);
+});
+
+app.get('/rated-shows', async (req, res) => {
+  if (accessTokenHasExpired(req)) {
+    try {
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error refreshing access token', error);
+    }
+  }
+
+  const userId = req.session.userDB.spotify_id;
+  let user = await User.findOne({ spotify_id: userId });
+
+  let likedShowsDetails = await Promise.all(user.liked_shows.map(async (showId) => {
+    let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.access_token}`
+      }
+    });
+    return response.json();
+  }));
+
+  let dislikedShowsDetails = await Promise.all(user.disliked_shows.map(async (showId) => {
+    let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.access_token}`
+      }
+    });
+    return response.json();
+  }));
+
+  res.render('main/rated-shows.ejs', {
+    likedShows: likedShowsDetails,
+    dislikedShows: dislikedShowsDetails,
+    user: req.session.user
+  });
+});
+
+app.post('/comment/:trackId', async (req, res) => {
+  const currUser = req.session.user;
+
+  const trackId = req.params.trackId;
+  const userId = currUser.id;
+
+   // Find the user and track in the database
+   let user = await User.findOne({ spotify_id: userId });
+   let track = await Track.findOne({ track_id: trackId });
+ 
+   // If the track doesn't exist, create a new track
+   if (!track) {
+    track = new Track({ track_id: trackId, comments: [] });
+   }
+
+   const commentText = req.body.comment;
+
+   if (!commentText) {
+    return res.status(400).send('Comment cannot be empty');
+  }
+
+   // Create a new comment
+   const newComment = new Comment({
+    user: {
+      spotify_id: userId,
+      display_name: currUser.display_name
+    },
+    comment: commentText,
+   });
+
+   // Add the comment to the shows array of comments
+   track.comments.push(newComment);
+
+   // Try to save it to the db
+   try {
+    await track.save();
+
+    res.redirect(`/track/${trackId}`);
+   } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server error' + error)
+   }
+});
+
+app.post('/comment-show/:showId', async (req, res) => {
+
+  const currUser = req.session.user;
+
+  const showId = req.params.showId;
+  const userId = currUser.id;
+
+  console.log("\nSPOTIFY ID: "+ userId);
+
+   // Find the user and track in the database
+   let user = await User.findOne({ spotify_id: userId });
+   let show = await Show.findOne({ show_id: showId });
+ 
+   // If the track doesn't exist, create a new track
+   if (!show) {
+    show = new Show({ show_id: showId, comments: [] });
+   }
+
+   console.log("\n" + req.body + "\n");
+   const commentText = req.body.comment;
+
+   if (!commentText) {
+    return res.status(400).send('Comment cannot be empty');
+  }
+
+   // Create a new comment
+   const newComment = new Comment({
+    user: {
+      spotify_id: userId,
+      display_name: currUser.display_name
+    },
+    comment: commentText,
+   });
+
+   // Add the comment to the shows array of comments
+   show.comments.push(newComment);
+
+   // Try to save it to the db
+   try {
+    await show.save();
+
+    res.redirect(`/show/${showId}`);
+   } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server error' + error)
+   }
+});
+
+app.post('/delete-track-comment/:trackId/:commentId', async (req, res) => {
+  const currUser = req.session.user;
+
+  const trackId = req.params.trackId;
+  const commentId = req.params.commentId;
+  const userId = currUser.id;
+
+  try {
+    // Find the user and track in the database
+  let user = await User.findOne({ spotify_id: userId });
+  let track = await Track.findOne({ track_id: trackId });
+  //let comment = await Comment.findOne({ _id: commentId });
+
+  // If the track doesn't exist, create a new track
+  if (!track) {
+    track = new Track({ track_id: trackId, comments: [] });
+   }
+
+   // delete the comment from that track
+   track.comments.pull({ _id: commentId });
+
+   // Save the track
+   await track.save();
+
+   res.redirect(`/track/${trackId}`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server error');
+  }
+
+});
+
+app.post('/delete-show-comment/:showid/:commentId', async (req, res) => {
+  const currUser = req.session.user;
+
+  const showId = req.params.showid;
+  const commentId = req.params.commentId;
+  const userId = currUser.id;
+
+  try {
+    // Find the user and track in the database
+  let user = await User.findOne({ spotify_id: userId });
+  let show = await Show.findOne({ show_id: showId });
+  //let comment = await Comment.findOne({ _id: commentId });
+
+  // If the track doesn't exist, create a new track
+  if (!show) {
+    show = new Track({ show_id: showId, comments: [] });
+   }
+
+   // delete the comment from that track
+   show.comments.pull({ _id: commentId });
+
+   // Save the track
+   await show.save();
+
+   res.redirect(`/show/${showId}`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server error');
+  }
+
+});
+

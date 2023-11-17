@@ -1,25 +1,92 @@
 <%- include('../partials/head.ejs') %>
-    <%- include('../partials/header.ejs')%>
-    <body style="background-color: black; color: white">
-        <div class="bdy-container">
-            <div class="title">
-                <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
-            </div>
-            <div class="body-container">
-                <%- include('../partials/nav.ejs') %>
-                <% if (show) { %>
-                    <div class="track-big">
-                        <div class="track-cover-big">
-                            <img src="<%= show.images[0].url %>" alt="Track image">
-                        </div>
-                        <div class="track-info-big">
-                            <h2 class="track-title-big"><%= show.name %></h2>
-                            <p class="artist-name-big"><%= show.publisher %></p>
-                        </div>
-                    </div>
+  <%- include('../partials/header.ejs')%>
 
-                    <%# Comments will go here %>
-                <% } %>
-            </div>
+    <body style="background-color: black; color: white">
+      <div class="bdy-container">
+        <div class="title">
+          <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
         </div>
+        <div class="body-container">
+          <%- include('../partials/nav.ejs') %>
+            <% if (show) { %>
+              <div class="track-big">
+                <div class="track-cover-big">
+                  <img src="<%= show.images[0].url %>" alt="Track image">
+                </div>
+                <div class="track-info-big">
+                  <h2 class="track-title-big">
+                    <%= show.name %>
+                  </h2>
+                  <p class="artist-name-big">
+                    <%= show.publisher %>
+                  </p>
+                  <p class="artist-name-big">
+                    Total Episodes: <%= show.episodes.total %>
+                  </p>
+                  <p class="artist-name-big">
+                    Description: <%= show.description %>
+                  </p>
+
+                  <%# Likes and dislikes %>
+                    <div class="post-ratings-container">
+                      <div class="post">
+                        <!-- Like Button -->
+                        <form action="/like-show/<%= show.id %>" method="GET">
+                          <button type="submit"
+                            style="background: none; border: none; padding: 0; color: inherit; font: inherit;">
+                            <span class="material-symbols-outlined" style="font-size: 48px;">thumb_up</span>
+                          </button>
+                          <span class="post-rating-count" style="font-size: 48px;">
+                            <%= showDB.likes %>
+                          </span>
+                        </form>
+                      </div>
+                      <!-- Dislike Button -->
+                      <div class="post">
+                        <form action="/dislike-show/<%= show.id %>" method="GET">
+                          <button type="submit"
+                            style="background: none; border: none; padding: 0; color: inherit; font: inherit;">
+                            <span class="material-symbols-outlined" style="font-size: 48px;">thumb_down</span>
+                          </button>
+                          <span class="post-rating-count" style="font-size: 48px;">
+                            <%= showDB.dislikes %>
+                          </span>
+                        </form>
+                      </div>
+                    </div>
+                </div>
+              </div>
+
+              <%# Comments will go here %>
+
+                <form action="/comment-show/<%= show.id %>" method="POST">
+                  <div class="comments" style="display: flex; flex-direction: column;">
+
+                    
+                    <textarea name="comment" id="comment" cols="90" rows="5" placeholder="Enter your comment here"
+                      style="resize: none;"></textarea>
+                  </div>
+                  <button type="submit" class="commentBut">Submit Comment</button>
+                </form>
+                <% } %>
+
+              <!-- Display comments -->
+              <% if (showDB.comments && showDB.comments.length > 0) { %>
+                <div class="comments-list">
+                  <% showDB.comments.forEach(comment => { %>
+                    <div class="comment">
+                      <p>
+                        <strong><%= comment.user.display_name %>:</strong> <%= comment.comment %>
+                      </p>
+                      <% if (comment.user.spotify_id === userDB.spotify_id) { %>
+                        <form action="/delete-show-comment/<%= showDB.show_id %>/<%= comment._id %>" method="post">
+                          <button type="submit" class="DeleteBut">Delete</button>
+                        </form>
+                      <% } %>
+                    </div>
+                  <% }); %>
+                  <% } %>
+                </div>
+        </div>
+      </div>
     </body>
