@@ -20,9 +20,7 @@ require('dotenv').config();
 require('isomorphic-fetch');
 
 // Local DB: mongodb://127.0.0.1:27017/testDB2
-mongoose.connect('ENTER YOUR DB NAME HERE', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+mongoose.connect('YOUR DB STRING HERE', {
 })
   .then(() => {
     console.log('\nMongoDB Connected…')
@@ -489,13 +487,59 @@ app.get('/me', async (req, res) => {
       console.error('Error refreshing access token', error);
     }
   } else {
-    res.render('main/profile.ejs', { user: req.session.user });
-  }
+    const currUser = req.session.user;
+    const userId = currUser.id;
+    let user = await User.findOne({ spotify_id: userId });
 
+    // In the profile we will let the user look at all the tracks they've liked and disliked
+    // Same with shows
+    let likedTracksDetails = await Promise.all(user.liked_tracks.map(async (trackId) => {
+      let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+  
+    let dislikedTracksDetails = await Promise.all(user.disliked_tracks.map(async (trackId) => {
+      let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+
+    let likedShowsDetails = await Promise.all(user.liked_shows.map(async (showId) => {
+      let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+  
+    let dislikedShowsDetails = await Promise.all(user.disliked_shows.map(async (showId) => {
+      let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+    res.render('main/profile.ejs', {
+      likedTracks: likedTracksDetails,
+      dislikedTracks: dislikedTracksDetails,
+      likedShows: likedShowsDetails,
+      dislikedShows: dislikedShowsDetails,
+      user: req.session.user
+    });
+  }
 });
 
-async function getUserProfile(accessToken) {
-  const response = await fetch('https://api.spotify.com/v1/me', {
+async function getUserProfile(accessToken, req) {
+    const response = await fetch('https://api.spotify.com/v1/me', {
     headers: { 'Authorization': 'Bearer ' + accessToken }
   });
 
@@ -532,8 +576,9 @@ app.get('/rated-tracks', async (req, res) => {
     }
   }
 
-  // FIX THIS
-  const userId = req.session.userDB.spotify_id;
+  // FIXED THIS - STILL NEEDS TO BE TESTED
+  const currUser = req.session.user;
+  const userId = currUser.id;
   let user = await User.findOne({ spotify_id: userId });
 
   let likedTracksDetails = await Promise.all(user.liked_tracks.map(async (trackId) => {

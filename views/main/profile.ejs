@@ -8,20 +8,157 @@
             <div class="body-container">
                 <%- include('../partials/nav.ejs') %>
                 <% if (user) { %>
-                    <div class="profile-container">
-                        <div class="profile-info">
-                            <div class="profile-pic">
-                                <% if (user.images && user.images[1]) { %>
-                                    <img src="<%= user.images[1].url %>" alt="Profile Picture">
-                                <% } else { %>
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png" alt="Profile Picture">
-                                <% } %>    
-                            </div>
-                            <div class="profile-name">
-                                <h2><%= user.display_name %></h2>
+                    <div class="profile-tracks-shows-container" style="display: flex; width:85%;">
+
+                        <div class="profile-container">
+                            <div class="profile-info">
+                                <div class="profile-pic">
+                                    <% if (user.images && user.images[1]) { %>
+                                        <img src="<%= user.images[1].url %>" alt="Profile Picture">
+                                    <% } else { %>
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png" alt="Profile Picture">
+                                    <% } %>    
+                                </div>
+                                <div class="profile-name">
+                                    <h2><%= user.display_name %></h2>
+                                </div>
+                                <a class="spotify-profile-button logout" style="margin-right: -25px;" href="<%= user.uri %>">Go to Spotify Profile</a>
                             </div>
                         </div>
+    
+                        <div class="topTracksList-profile" style="justify-content: space-evenly;">
+    
+                            <div class="list1-profile">
+                                <h3 class="topTracks-title">Liked Tracks</h3>
+                                <% if (likedTracks && likedTracks.length > 0) { %>
+                                    <ol class="track-list">
+                                      <% likedTracks.forEach(function(track) { %>
+                                        <a class="track-link" href="/track/<%= track.id %>">
+                                          <li class="track-card">
+                                            <div class="album-cover">
+    
+                                              <% if (track.album && track.album.images && track.album.images.length > 0) { %>
+                                                <img src="<%= track.album.images[0].url %>" alt="Album cover">
+                                              <% } else { %>
+                                                <!-- Handle the case when images are not available -->
+                                                <img src="https://media.licdn.com/dms/image/D5603AQGgyj1PJz5_Uw/profile-displayphoto-shrink_800_800/0/1691714989041?e=2147483647&v=beta&t=cwhXqcIh3fq23el1x8YAhy01OWiKzmsQjwolnMSVqB4" alt="Placeholder">
+                                              <% } %>
+    
+                                            </div>
+                                            <div class="track-info">
+                                              <h2 class="track-title"><%= track.name %></h2>
+                                              <p class="artist-name"><%= track.artists[0].name %></p>
+                                            </div>
+                                          </li>
+                                        </a>
+                                      <% }); %>
+                                    </ol>
+                                  <% } else { %>
+                                    <p style="font-family: DM Sans, sans-serif;">No tracks found, try liking a song</p>
+                                  <% } %>
+                            </div>
+    
+                            <div class="list1-profile">
+                                <h3 class="topTracks-title">Disliked Tracks</h3>
+                                <% if (dislikedTracks && dislikedTracks.length > 0) { %>
+                                  <ol class="track-list">
+                                    <% dislikedTracks.forEach(function(track) { %>
+                                      <a class="track-link" href="/track/<%= track.id %>">
+                                        <li class="track-card">
+                                          <div class="album-cover">
+                                            <!--<img src="<%= track.album.images[0].url %>" alt="Album cover">-->
+    
+                                            <% if (track.album && track.album.images && track.album.images.length > 0) { %>
+                                              <img src="<%= track.album.images[0].url %>" alt="Album cover">
+                                            <% } else { %>
+                                              <!-- Handle the case when images are not available -->
+                                              <img src="https://media.licdn.com/dms/image/D5603AQGgyj1PJz5_Uw/profile-displayphoto-shrink_800_800/0/1691714989041?e=2147483647&v=beta&t=cwhXqcIh3fq23el1x8YAhy01OWiKzmsQjwolnMSVqB4" alt="Placeholder">
+                                            <% } %>
+                                            
+                                          </div>
+                                          <div class="track-info">
+                                            <h2 class="track-title"><%= track.name %></h2>
+                                            <p class="artist-name"><%= track.artists[0].name %></p>
+                                          </div>
+                                        </li>
+                                      </a>
+                                    <% }); %>
+                                  </ol>
+                                <% } else { %>
+                                  <p style="font-family: DM Sans, sans-serif;">No tracks found, thats a relief</p>
+                                <% } %>
+                            </div>
+                            
+                        </div>
+
+
+                        <div class="topTracksList-profile" style="justify-content: space-evenly;">
+
+                            <div class="list1-profile">
+                                <h3 class="topTracks-title">Liked Shows</h3>
+                                <% if (likedShows && likedShows.length > 0) { %>
+                                    <ol class="track-list">
+                                      <% likedShows.forEach(function(show) { %>
+                                        <a class="track-link" href="/show/<%= show.id %>">
+                                          <li class="track-card">
+                                            <div class="album-cover">
+                                              
+    
+                                                <% if (show.images && show.images.length > 0) { %>
+                                                    <img src="<%= show.images[0].url %>" alt="Album cover">
+                                                  <% } else { %>
+                                                    <!-- Handle the case when images are not available -->
+                                                    <img src="https://media.licdn.com/dms/image/D5603AQGgyj1PJz5_Uw/profile-displayphoto-shrink_800_800/0/1691714989041?e=2147483647&v=beta&t=cwhXqcIh3fq23el1x8YAhy01OWiKzmsQjwolnMSVqB4" alt="Placeholder">
+                                                  <% } %>
+    
+                                            </div>
+                                            <div class="track-info">
+                                              <h2 class="track-title"><%= show.name %></h2>
+                                              <p class="artist-name"><%= show.publisher[0].name %></p>
+                                            </div>
+                                          </li>
+                                        </a>
+                                      <% }); %>
+                                    </ol>
+                                  <% } else { %>
+                                    <p style="font-family: DM Sans, sans-serif;">No shows found, try liking one</p>
+                                  <% } %>
+                            </div>
+    
+                            <div class="list1-profile">
+                                <h3 class="topTracks-title">Disliked Shows</h3>
+                                <% if (dislikedShows && dislikedShows.length > 0) { %>
+                                  <ol class="track-list">
+                                    <% dislikedShows.forEach(function(show) { %>
+                                      <a class="track-link" href="/show/<%= show.id %>">
+                                        <li class="track-card">
+                                          <div class="album-cover">
+    
+                                            <% if (show.images && show.images.length > 0) { %>
+                                              <img src="<%= show.images[0].url %>" alt="Album cover">
+                                            <% } else { %>
+                                              <!-- Handle the case when images are not available -->
+                                              <img src="https://media.licdn.com/dms/image/D5603AQGgyj1PJz5_Uw/profile-displayphoto-shrink_800_800/0/1691714989041?e=2147483647&v=beta&t=cwhXqcIh3fq23el1x8YAhy01OWiKzmsQjwolnMSVqB4" alt="Placeholder">
+                                            <% } %>
+                                            
+                                          </div>
+                                          <div class="track-info">
+                                            <h2 class="track-title"><%= show.name %></h2>
+                                            <p class="artist-name"><%= show.publisher[0].name %></p>
+                                          </div>
+                                        </li>
+                                      </a>
+                                    <% }); %>
+                                  </ol>
+                                <% } else { %>
+                                  <p style="font-family: DM Sans, sans-serif;">No Shows found, thats a relief</p>
+                                <% } %>
+                            </div>
+                            
+                        </div>
+
                     </div>
+                    
                 <% } else { %>
                     <p>User not found</p>
                  <% } %>   

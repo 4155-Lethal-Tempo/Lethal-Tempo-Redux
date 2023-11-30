@@ -138,25 +138,21 @@ body {
 /********** Profile Page **********/
 .profile-container {
     display: flex;
-    align-items: flex-start;
-    padding: 20px;
-    width: 80%;
-    margin-top: 20px;
+    justify-content: middle;
+    width: 20%;
+    padding-top: 20px;
 }
 
 .profile-info {
     display: flex;
-    align-items: flex-start;
+    max-width: 100%;
+    align-items: center;
+    flex-direction: column;
 }
 
 .profile-pic img {
-    width: 300;
-    height: 300px;
+    height: auto;
     border-radius: 10px;
-}
-
-.profile-name {
-    margin-left: 20px;
 }
 
 .profile-name h2 {
@@ -189,6 +185,21 @@ body {
     padding: 20px;
     margin-right: 25px;   
 }
+
+.topTracksList-profile {
+    display: flex;
+    justify-content: left;
+    width: 40%;
+}
+
+.list1-profile {
+    width: 100%;
+}
+
+.track-list {
+    padding-inline-start: 0;
+}
+
 /********** About Page **********/
 .about{
     display: flex;
