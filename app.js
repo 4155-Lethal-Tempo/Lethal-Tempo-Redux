@@ -20,7 +20,7 @@ require('dotenv').config();
 require('isomorphic-fetch');
 
 // Local DB: mongodb://127.0.0.1:27017/testDB2
-mongoose.connect('YOUR DB STRING HERE', {
+mongoose.connect(process.env.DB_CONNECTION_STRING, {
 })
   .then(() => {
     console.log('\nMongoDB Connected…')
@@ -296,6 +296,26 @@ app.get('/top-tracks', async (req, res) => {
         const data = await response.json();
         const shortTermData = await shortTermResponse.json();
         const mediumTermData = await mediumTermResponse.json();
+
+
+        // For each track in each term, check if it exists in the MongoDB database and fetch the like and dislike count
+        for (let termData of [data, shortTermData, mediumTermData]) {
+          for (let track of termData.items) {
+            let trackInDb = await Track.findOne({ track_id: track.id });
+            if (trackInDb) {
+              track.likeCount = trackInDb.likes;
+              track.dislikeCount = trackInDb.dislikes;
+            } else {
+              // If track doesn't exist in the database, create a new track
+              trackInDb = new Track({ track_id: track.id, comments: [] });
+              await trackInDb.save();
+
+              track.likeCount = 0;
+              track.dislikeCount = 0;
+            }
+          }
+        }
+
 
         res.render('main/topTracks.ejs', {
           tracks: data,
