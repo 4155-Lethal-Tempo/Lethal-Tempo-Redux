@@ -14,6 +14,56 @@
             <p>Look at what your friends listen to and take a look at their playlists.</p><br>
             <p>See what songs are being played and liked by other users on Lethal Tempo.</p><br>
             <p>View comments from other users on songs and podcasts.</p><br>
+            <div class="topTracksList" style="width: 70%;">
+                <div class="list2">
+                    <h3 class="topTracks-title">Top 25 Liked Tracks</h3>
+                    <% if (trackDetails) { %>
+                        <ol>
+                            <% for(let i = 0; i < 25; i++) { %>
+                                <a class="track-link" href="/track/<%= trackDetails[i].id %>">
+                                    <li class="track-card">
+                                        <div class="album-cover">
+                                            <img src="<%= trackDetails[i].album.images[0].url %>" alt="Album cover">
+                                        </div>
+                                        <div class="track-info">
+                                            <h2 class="track-title"><%= trackDetails[i].name %></h2>
+                                            <p class="artist-name"><%= trackDetails[i].artists[0].name %></p>
+                                            <div class="track-stats-container">
+                                                <p class="track-stat">Likes: <%= trackDetails[i].likeCount %></p>
+                                                <p class="track-stat">Dislikes: <%= trackDetails[i].dislikeCount %></p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </a>
+                            <% } %>
+                        </ol>
+                    <% } %>
+                </div>
+                <div class="list2">
+                    <h3 class="topTracks-title">Top 25 Disliked Tracks</h3>
+                    <% if (trackDetails) { %>
+                        <ol>
+                            <% for(let i = 25; i < 50; i++) { %>
+                                <a class="track-link" href="/track/<%= trackDetails[i].id %>">
+                                    <li class="track-card">
+                                        <div class="album-cover">
+                                            <img src="<%= trackDetails[i].album.images[0].url %>" alt="Album cover">
+                                        </div>
+                                        <div class="track-info">
+                                            <h2 class="track-title"><%= trackDetails[i].name %></h2>
+                                            <p class="artist-name"><%= trackDetails[i].artists[0].name %></p>
+                                            <div class="track-stats-container">
+                                                <p class="track-stat">Likes: <%= trackDetails[i].likeCount %></p>
+                                                <p class="track-stat">Dislikes: <%= trackDetails[i].dislikeCount %></p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </a>
+                            <% } %>
+                        </ol>
+                    <% } %>
+                </div>
+            </div>
         </div>
     </div>
     </body>

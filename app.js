@@ -155,8 +155,47 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
-app.get('/home', (req, res) => {
-  res.render('main/landingPage.ejs', { user: req.session.user });
+app.get('/home', async (req, res) => {
+  // get the most liked and disliked tracks
+  const mostLikedTracks = await Track.find().sort({ likes: -1 }).limit(25);
+  const mostDislikedTracks = await Track.find().sort({ dislikes: -1 }).limit(25);
+
+  // get the track IDs
+  const likedTrackIds = mostLikedTracks.map(track => track.track_id).join(',');
+  const dislikedTrackIds = mostDislikedTracks.map(track => track.track_id).join(',');
+
+  // Ping the api for the info
+  const likedResponse = await fetch(`https://api.spotify.com/v1/tracks?ids=${likedTrackIds}`, {
+    headers: { 'Authorization': 'Bearer ' + req.session.access_token }
+  });
+
+  const dislikedResponse = await fetch(`https://api.spotify.com/v1/tracks?ids=${dislikedTrackIds}`, {
+    headers: { 'Authorization': 'Bearer ' + req.session.access_token }
+  });
+
+  // if the response is good, get the data
+  let trackDetails = [];
+  if (likedResponse.status === 200) {
+    const data = await likedResponse.json();
+    for (let track of data.tracks) {
+      let trackInDb = mostLikedTracks.find(t => t.track_id === track.id);
+      track.likeCount = trackInDb.likes;
+      track.dislikeCount = trackInDb.dislikes;
+      trackDetails.push(track);
+    }
+  }
+
+  if (dislikedResponse.status === 200) {
+    const data = await dislikedResponse.json();
+    for (let track of data.tracks) {
+      let trackInDb = mostDislikedTracks.find(t => t.track_id === track.id);
+      track.likeCount = trackInDb.likes;
+      track.dislikeCount = trackInDb.dislikes;
+      trackDetails.push(track);
+    }
+  }
+
+  res.render('main/landingPage.ejs', { user: req.session.user, trackDetails: trackDetails });
 });
 
 // Refreshes the access token in case it expires

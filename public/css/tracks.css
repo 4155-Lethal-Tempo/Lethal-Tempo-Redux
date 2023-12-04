@@ -80,6 +80,10 @@ li.track-card:hover {
     width: 30%;
 }
 
+.list2 {
+    width: 35%;
+}
+
 /* For track.ejs */
 .track-big {
     display: flex;
