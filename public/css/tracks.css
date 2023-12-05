@@ -147,7 +147,7 @@ li.track-card:hover {
     display: flex;
     justify-content: end;
     padding: 12px 0;
-    margin-right: 620px;
+    justify-content: flex-start;
 }
 
 .post-selected > .material-symbols-outlined,
