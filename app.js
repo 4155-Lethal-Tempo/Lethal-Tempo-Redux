@@ -111,7 +111,7 @@ app.get('/', async (req, res) => {
     res.render('index.ejs');
   } else {
     try {
-      const user = await getUserProfile(req.session.access_token);
+      const user = await getUserProfile(req.session.access_token, req, res);
       req.session.user = user; // Store the user profile in the session - so we can access it later
       console.log(`\nSuccessfully logged in ${user.display_name}`);
       res.redirect('/home');
