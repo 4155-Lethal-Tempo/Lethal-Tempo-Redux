@@ -663,7 +663,6 @@ async function getUserProfile(accessToken, req, res, next) {
   console.log('Response status text:', response.statusText);
 
   if (response.status !== 200) {
-    res.redirect('/')
     throw new Error('Failed to get user profile');
   }
 
