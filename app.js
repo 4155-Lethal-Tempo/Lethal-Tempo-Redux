@@ -653,7 +653,7 @@ app.get('/me', async (req, res) => {
   }
 });
 
-async function getUserProfile(accessToken, req, res) {
+async function getUserProfile(accessToken, req, res, next) {
   try {
     const response = await fetch('https://api.spotify.com/v1/me', {
     headers: { 'Authorization': 'Bearer ' + accessToken }
@@ -672,8 +672,6 @@ async function getUserProfile(accessToken, req, res) {
   } catch(error) {
     next(error);
   }
-
-  
 }
 
 app.get('/contact', (req, res) => {
