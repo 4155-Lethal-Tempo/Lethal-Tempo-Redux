@@ -52,7 +52,7 @@ app.use(express.static('public'));
 app.get('/callback', function (req, res, next) {
   var code = req.query.code || null;
   var state = req.query.state || null;
-  var storedState = req.session.state; || null;
+  var storedState = req.session.state || null;
 
   if (state === null || state !== storedState) {
     res.redirect('/#' +
