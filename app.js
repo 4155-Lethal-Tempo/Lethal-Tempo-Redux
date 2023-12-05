@@ -39,7 +39,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: MongoStore.create({ mongoUrl: process.env.DB_CONNECTION_STRING }),
-  cookie: {maxAge: 60*60*1000, secure: true}
+  cookie: {maxAge: 60*60*1000, secure: false}
 }));
 
 app.use(express.urlencoded({ extended: true }));
