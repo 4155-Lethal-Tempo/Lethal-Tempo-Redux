@@ -49,7 +49,7 @@ app.use(express.static('public'));
 // This is the callback page that is called after you login
 // It is supposed to give you an access token and a refresh token
 // We'll use this to make API calls
-app.get('/callback', function (req, res) {
+app.get('/callback', function (req, res, next) {
   var code = req.query.code || null;
   var state = req.query.state || null;
 
@@ -105,7 +105,7 @@ app.get('/callback', function (req, res) {
 });
 
 // This page contains a link that sends you to the Spotify login page - or redirects you to the home page if you're already logged in
-app.get('/', async (req, res) => {
+app.get('/', async (req, res, next) => {
   var access_token = req.session.access_token;
 
   if (access_token == null || access_token == '' || access_token == undefined) {
@@ -423,7 +423,7 @@ app.get('/top-tracks', async (req, res) => {
 });
 
 // Go to the song page of a track we clicked on
-app.get('/track/:id', async (req, res) => {
+app.get('/track/:id', async (req, res, next) => {
   const id = req.params.id;
 
   if (accessTokenHasExpired(req)) {
@@ -483,7 +483,7 @@ app.get('/track/:id', async (req, res) => {
 });
 
 //Go to the podcast page of show you click on
-app.get('/show/:id', async (req, res) => {
+app.get('/show/:id', async (req, res, next) => {
   const id = req.params.id;
 
   if (accessTokenHasExpired(req)) {
