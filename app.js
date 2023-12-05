@@ -37,7 +37,7 @@ app.listen(port, () => {
 app.use(session({
   secret: "SuperSecretKey",
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.DB_CONNECTION_STRING }),
   cookie: {maxAge: 60*60*1000, secure: false}
 }));
@@ -52,8 +52,9 @@ app.use(express.static('public'));
 app.get('/callback', function (req, res, next) {
   var code = req.query.code || null;
   var state = req.query.state || null;
+  var storedState = req.session.state; || null;
 
-  if (state === null) {
+  if (state === null || state !== storedState) {
     res.redirect('/#' +
       querystring.stringify({
         error: 'state_mismatch'
@@ -75,7 +76,16 @@ app.get('/callback', function (req, res, next) {
   }
 
   request.post(authOptions, async function (error, response, body) {
-    if (!error && response.statusCode === 200) {
+    if (error) {
+      console.error('Failed to exchange authorization code for access token:', error);
+      next(error);
+    } else if (response.statusCode !== 200) {
+      console.error('Failed to exchange authorization code for access token:', body);
+      res.redirect('/#' +
+        querystring.stringify({
+          error: 'invalid_token'
+        }));
+    } else if (!error && response.statusCode === 200) {
       req.session.access_token = body.access_token;
       req.session.refresh_token = body.refresh_token;
       req.session.access_token_received_at = Date.now();
@@ -128,6 +138,7 @@ app.get('/', async (req, res, next) => {
 // This route handles the scope, client id, redirect uri, and state. It then redirects you to the callback to get the access token
 app.get('/login', (req, res) => {
   var state = generateRandomString(16);
+  req.session.state = state;
   var scope = 'user-library-read ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
 
   res.redirect('https://accounts.spotify.com/authorize?' +
