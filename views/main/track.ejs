@@ -61,9 +61,14 @@
                           <strong><%= comment.user.display_name %>:</strong> <%= comment.comment %>
                         </p>
                         <% if (comment.user.spotify_id === userDB.spotify_id) { %>
-                          <form action="/delete-track-comment/<%= trackDB.track_id %>/<%= comment._id %>" method="post">
-                            <button type="submit" class="DeleteBut">Delete</button>
-                          </form>
+                          <div class="buttons">
+                            <form action="/edit-track-comment/<%= trackDB.track_id %>/<%= comment._id %>" method="post">
+                              <button type="submit" class="EditBut">Edit</button>
+                            </form>
+                            <form action="/delete-track-comment/<%= trackDB.track_id %>/<%= comment._id %>" method="post">
+                              <button type="submit" class="DeleteBut">Delete</button>
+                            </form>
+                          </div>
                         <% } %>
                       </div>
                     <% }); %>

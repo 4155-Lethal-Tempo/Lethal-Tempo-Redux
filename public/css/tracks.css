@@ -181,6 +181,7 @@ li.track-card:hover {
 
 .commentBut {
     border-radius: 10px;
+    font-family: DM, sans-serif;
     background-color: transparent;
     color: #FFFFFF;
     border-color: #FFFFFF;
@@ -189,6 +190,13 @@ li.track-card:hover {
     border-width: thin;
     float: right;
     margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.commentBut:hover {
+    border-color: var(--spotify-green);
+    color: var(--spotify-green);
+    background-color: black;
 }
 
 .comments-list {
@@ -210,11 +218,50 @@ li.track-card:hover {
     font-size: 30px;
 }
 
+.buttons {
+    display: flex;
+    flex-direction: row;
+    float: right;
+}
+
 .DeleteBut {
+    font-family: DM, sans-serif;
+    font-weight: bold;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    background-color: #ff0000;
+    color: #FFFFFF;
     border: none;
-    background-color: transparent;
-    color: red;
-    border-color: #FFFFFF;
-    font-size: 15px;
-    align-items: left;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    margin: 4px 0px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.DeleteBut:hover {
+    color: black;
+    background-color: white;
+}
+
+.EditBut {
+    font-family: DM, sans-serif;
+    font-weight: bold;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    background-color: blue;
+    color: #FFFFFF;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    margin: 4px 0px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.EditBut:hover {
+    color: black;
+    background-color: white;
 }
