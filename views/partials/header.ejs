@@ -6,6 +6,18 @@
             <a class="nav-link" href="/contact">Contact</a>
             <a class="nav-link" href="/about">About</a>
         </div>
+
+        <div class="middle-items">
+            <form action="/search" method="GET" class="search-form">
+                <input type="text" name="query" placeholder="Search for a track" class="search-input">
+                <select name="type" class="search-select">
+                    <option value="track">Track</option>
+                    <option value="show">Show</option>
+                  </select>
+                <button type="submit" class="search-button">Search</button>
+            </form>
+        </div>
+
         <div class="right-items">
             <a class="logout" href="/logout">Logout</a>
             <% if (typeof user !== 'undefined' && user.images && user.images.length > 0) { %>

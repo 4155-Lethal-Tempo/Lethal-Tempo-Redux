@@ -178,20 +178,28 @@ app.get('/home', async (req, res) => {
   if (likedResponse.status === 200) {
     const data = await likedResponse.json();
     for (let track of data.tracks) {
-      let trackInDb = mostLikedTracks.find(t => t.track_id === track.id);
-      track.likeCount = trackInDb.likes;
-      track.dislikeCount = trackInDb.dislikes;
-      trackDetails.push(track);
+      if (track && track.id) {
+        let trackInDb = mostLikedTracks.find(t => t.track_id === track.id);
+        if (trackInDb) {
+          track.likeCount = trackInDb.likes;
+          track.dislikeCount = trackInDb.dislikes;
+          trackDetails.push(track);
+        }
+      }
     }
   }
-
+  
   if (dislikedResponse.status === 200) {
     const data = await dislikedResponse.json();
     for (let track of data.tracks) {
-      let trackInDb = mostDislikedTracks.find(t => t.track_id === track.id);
-      track.likeCount = trackInDb.likes;
-      track.dislikeCount = trackInDb.dislikes;
-      trackDetails.push(track);
+      if (track && track.id) {
+        let trackInDb = mostDislikedTracks.find(t => t.track_id === track.id);
+        if (trackInDb) {
+          track.likeCount = trackInDb.likes;
+          track.dislikeCount = trackInDb.dislikes;
+          trackDetails.push(track);
+        }
+      }
     }
   }
 
@@ -228,6 +236,50 @@ app.get('/refresh_token', function (req, res) {
       });
     }
   });
+});
+
+app.get('/search', async (req, res) => {
+  const query = req.query.query;
+  const type = req.query.type;
+
+  const response = await fetch(`https://api.spotify.com/v1/search?type=${type}&q=${query}`, {
+    headers: { 'Authorization': 'Bearer ' + req.session.access_token }
+  });
+
+  if (response.status === 200) {
+    const data = await response.json();
+    const items = data[type + 's'].items;
+
+    for (let item of items) {
+      let dbItem;
+
+      item.type = type;
+
+      if (type === 'track') {
+        dbItem = await Track.findOne({ track_id: item.id });
+      } else if (type === 'show') {
+        dbItem = await Show.findOne({ show_id: item.id }); // replace with your actual Show model
+      }
+
+      if (dbItem) {
+        item.likeCount = dbItem.likes;
+        item.dislikeCount = dbItem.dislikes;
+      } else {
+        if (type === 'track') {
+          dbItem = new Track({ track_id: item.id, likes: 0, dislikes: 0 });
+        } else if (type === 'show') {
+          dbItem = new Show({ show_id: item.id, likes: 0, dislikes: 0 }); // replace with your actual Show model
+        }
+        await dbItem.save();
+        item.likeCount = dbItem.likes;
+        item.dislikeCount = dbItem.dislikes;
+      }
+    }
+
+    res.render('main/searchResults.ejs', { results: items, user: req.session.user });
+  } else {
+    res.send('Failed to search. Status code: ' + response.status);
+  }
 });
 
 // Checks if the access token has expired - returns true if it has, false otherwise
@@ -747,12 +799,6 @@ app.get('/dislike/:trackId', async (req, res) => {
   // Redirect to the track page - so we can see the changes
   res.redirect(`/track/${trackId}`);
 });
-
-
-
-
-
-
 
 //like and dislike for shows 
 app.get('/like-show/:showId', async (req, res) => {

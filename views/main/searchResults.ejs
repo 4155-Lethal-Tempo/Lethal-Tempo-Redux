@@ -1,0 +1,69 @@
+<%- include('../partials/head.ejs') %>
+
+<body style="background-color: black; color: white;">
+<%- include('../partials/header.ejs')%>
+    <div class="bdy-container">
+        <div class="title">
+            <h1 style="text-align: center; padding-top: 5px;">Search Results</h1>
+        </div>
+        <div class="body-container">
+            <%- include('../partials/nav.ejs') %>
+            <br>
+            <br>
+            <div class="topTracksList">
+                <div class="list2" style="margin-left: 25%;">
+                    <h3 class="topTracks-title">Search Results</h3>
+                    <% if (results.length > 0) { %>
+                        <ol>
+                            <% results.forEach(function(result) { %>
+                                <% if (result.type === 'track') { %>
+                                  <a class="track-link" href="/track/<%= result.id %>">
+                                    <li class="track-card">
+                                      <div class="album-cover">
+                                        <% if (result.album && result.album.images && result.album.images.length > 0) { %>
+                                          <img src="<%= result.album.images[0].url %>" alt="Album cover">
+                                        <% } else { %>
+                                          <img src="/path/to/default/image.jpg" alt="Default album cover">
+                                        <% } %>
+                                      </div>
+                                      <div class="track-info">
+                                        <h2 class="track-title"><%= result.name %></h2>
+                                        <p class="artist-name"><%= result.artists[0].name %></p>
+                                        <div class="track-stats-container">
+                                          <p class="track-stat">Likes: <%= result.likeCount %></p>
+                                          <p class="track-stat">Dislikes: <%= result.dislikeCount %></p>
+                                        </div>
+                                      </div>
+                                    </li>
+                                  </a>
+                                <% } else if (result.type === 'show') { %>
+                                  <!-- Render show-specific HTML here -->
+                                  <a class="track-link" href="/show/<%= result.id %>">
+
+                                    <li class="track-card">
+                                        <div class="album-cover">
+                                            <img src="<%= result.images[0].url%>" alt="Album cover">
+                                        </div>
+                                        <div class="track-info">
+                                            <h2 class="track-title">
+                                                <%= result.name %>
+                                            </h2>
+                                            <p class="artist-name">
+                                                <%= result.publisher %>
+                                            </p>
+                                        </div>
+                                    </li>
+                                </a>
+                                <% } %>
+                              <% }); %>
+                        </ol>
+                    <% } else { %>
+                        <p>No results found.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
