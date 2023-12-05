@@ -46,11 +46,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
 
-app.use((err, req, res, next) => {
-  console.error(err.stack); // Log error stack trace
-  res.status(500).send('Something broke!');
-});
-
 // This is the callback page that is called after you login
 // It is supposed to give you an access token and a refresh token
 // We'll use this to make API calls
@@ -86,7 +81,7 @@ app.get('/callback', function (req, res) {
       req.session.access_token_received_at = Date.now();
 
       // Get the user's profile
-      const user = await getUserProfile(req.session.access_token, req, res);
+      const user = await getUserProfile(req.session.access_token, req, res, next);
       const spotify_id = user.id;
 
       // Check if the user exists in the database
@@ -117,7 +112,7 @@ app.get('/', async (req, res) => {
     res.render('index.ejs');
   } else {
     try {
-      const user = await getUserProfile(req.session.access_token, req, res);
+      const user = await getUserProfile(req.session.access_token, req, res, next);
       req.session.user = user; // Store the user profile in the session - so we can access it later
       console.log(`\nSuccessfully logged in ${user.display_name}`);
       res.redirect('/home');
@@ -466,7 +461,7 @@ app.get('/track/:id', async (req, res) => {
         }
 
         // Get the user's profile
-        const userDB = await getUserProfile(req.session.access_token, req, res);
+        const userDB = await getUserProfile(req.session.access_token, req, res, next);
         const spotify_id = userDB.id;
 
         // update the user we have stored in the session - just in case
@@ -526,7 +521,7 @@ app.get('/show/:id', async (req, res) => {
         }
 
         // Get the user's profile
-        const userDB = await getUserProfile(req.session.access_token, req, res);
+        const userDB = await getUserProfile(req.session.access_token, req, res, next);
         const spotify_id = userDB.id;
 
         // update the user we have stored in the session - just in case
@@ -587,7 +582,7 @@ app.get('/episode/:id', async (req, res) => {
 });
 
 // This gets user's profile - using getUserProfile function
-app.get('/me', async (req, res) => {
+app.get('/me', async (req, res, next) => {
   if (accessTokenHasExpired(req)) {
     try {
       const response = await fetch('/refresh_token');
@@ -1089,5 +1084,10 @@ app.post('/delete-show-comment/:showid/:commentId', async (req, res) => {
     res.status(500).send('Internal Server error');
   }
 
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log error stack trace
+  res.status(500).send('Something broke!');
 });
 
