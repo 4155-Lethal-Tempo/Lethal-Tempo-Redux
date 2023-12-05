@@ -46,6 +46,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
 
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log error stack trace
+  res.status(500).send('Something broke!');
+});
+
 // This is the callback page that is called after you login
 // It is supposed to give you an access token and a refresh token
 // We'll use this to make API calls
@@ -649,6 +654,7 @@ app.get('/me', async (req, res) => {
 });
 
 async function getUserProfile(accessToken, req, res) {
+  try {
     const response = await fetch('https://api.spotify.com/v1/me', {
     headers: { 'Authorization': 'Bearer ' + accessToken }
   });
@@ -663,6 +669,11 @@ async function getUserProfile(accessToken, req, res) {
 
   const userProfile = await response.json();
   return userProfile;
+  } catch(error) {
+    next(error);
+  }
+
+  
 }
 
 app.get('/contact', (req, res) => {
