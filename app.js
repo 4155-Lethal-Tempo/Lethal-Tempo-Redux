@@ -89,25 +89,32 @@ app.get('/callback', function (req, res, next) {
       req.session.access_token = body.access_token;
       req.session.refresh_token = body.refresh_token;
       req.session.access_token_received_at = Date.now();
+      req.session.save();
 
       console.log('\nAccess token received:', req.session.access_token);
       // Get the user's profile
       const user = await getUserProfile(req.session.access_token, req, res, next);
-      const spotify_id = user.id;
+      if (user) {
+        const spotify_id = user.id;
 
-      // Check if the user exists in the database
-      let dbUser = await User.findOne({ spotify_id: spotify_id });
+        // Check if the user exists in the database
+        let dbUser = await User.findOne({ spotify_id: spotify_id });
 
-      // If the user doesn't exist, create a new document/entry in the database
-      if (!dbUser) {
-        dbUser = new User({ spotify_id: spotify_id });
-        await dbUser.save();
+        // If the user doesn't exist, create a new document/entry in the database
+        if (!dbUser) {
+          dbUser = new User({ spotify_id: spotify_id });
+          await dbUser.save();
+        } else {
+          // If the user exists, save the user's ID in the session
+          req.session.userDB = dbUser
+          req.session.save();
+        }
+
+        res.redirect('/');
       } else {
-        // If the user exists, save the user's ID in the session
-        req.session.userDB = dbUser
+        console.error('Failed to get user profile');
       }
-
-      res.redirect('/');
+      
     } else {
       console.log(response.body);
       console.log(response.statusMessage);
@@ -125,6 +132,7 @@ app.get('/', async (req, res, next) => {
     try {
       const user = await getUserProfile(req.session.access_token, req, res, next);
       req.session.user = user; // Store the user profile in the session - so we can access it later
+      req.session.save();
       console.log(`\nSuccessfully logged in ${user.display_name}`);
       res.redirect('/home');
     } catch (error) {
@@ -241,6 +249,7 @@ app.get('/refresh_token', function (req, res) {
     if (!error && response.statusCode === 200) {
       req.session.access_token = body.access_token;
       req.session.refresh_token = body.refresh_token;
+      req.session.save();
       res.send({
         'access_token': req.session.access_token,
         'refresh_token': req.session.refresh_token
