@@ -652,6 +652,9 @@ async function getUserProfile(accessToken, req, res) {
     headers: { 'Authorization': 'Bearer ' + accessToken }
   });
 
+  console.log('Response status:', response.status);
+  console.log('Response status text:', response.statusText);
+
   if (response.status !== 200) {
     res.redirect('/')
     throw new Error('Failed to get user profile');
