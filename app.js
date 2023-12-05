@@ -80,7 +80,7 @@ app.get('/callback', function (req, res) {
       req.session.access_token_received_at = Date.now();
 
       // Get the user's profile
-      const user = await getUserProfile(req.session.access_token);
+      const user = await getUserProfile(req.session.access_token, req, res);
       const spotify_id = user.id;
 
       // Check if the user exists in the database
@@ -460,7 +460,7 @@ app.get('/track/:id', async (req, res) => {
         }
 
         // Get the user's profile
-        const userDB = await getUserProfile(req.session.access_token);
+        const userDB = await getUserProfile(req.session.access_token, req, res);
         const spotify_id = userDB.id;
 
         // update the user we have stored in the session - just in case
@@ -520,7 +520,7 @@ app.get('/show/:id', async (req, res) => {
         }
 
         // Get the user's profile
-        const userDB = await getUserProfile(req.session.access_token);
+        const userDB = await getUserProfile(req.session.access_token, req, res);
         const spotify_id = userDB.id;
 
         // update the user we have stored in the session - just in case
