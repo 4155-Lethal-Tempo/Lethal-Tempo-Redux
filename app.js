@@ -7,6 +7,7 @@
 
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const request = require('request');
 const querystring = require('node:querystring');
 const mongoose = require('mongoose');
@@ -20,12 +21,9 @@ require('dotenv').config();
 require('isomorphic-fetch');
 
 // Local DB: mongodb://127.0.0.1:27017/testDB2
-mongoose.connect(process.env.DB_CONNECTION_STRING, {
-})
+mongoose.connect(process.env.DB_CONNECTION_STRING, {})
   .then(() => {
     console.log('\nMongoDB Connected…')
-    const db = mongoose.connection;
-    const testDB2 = db.collection('tracks')
   })
   .catch(err => console.log(err)
   );
@@ -40,7 +38,7 @@ app.use(session({
   secret: "SuperSecretKey",
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // Change to true when using HTTPS
+  store: MongoStore.create({ mongoUrl: process.env.DB_CONNECTION_STRING })
 }));
 
 app.use(express.urlencoded({ extended: true }));
