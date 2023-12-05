@@ -80,6 +80,7 @@ app.get('/callback', function (req, res, next) {
       req.session.refresh_token = body.refresh_token;
       req.session.access_token_received_at = Date.now();
 
+      console.log('\nAccess token received:', req.session.access_token);
       // Get the user's profile
       const user = await getUserProfile(req.session.access_token, req, res, next);
       const spotify_id = user.id;
