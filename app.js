@@ -38,7 +38,8 @@ app.use(session({
   secret: "SuperSecretKey",
   resave: false,
   saveUninitialized: true,
-  store: MongoStore.create({ mongoUrl: process.env.DB_CONNECTION_STRING })
+  store: MongoStore.create({ mongoUrl: process.env.DB_CONNECTION_STRING }),
+  cookie: {maxAge: 60*60*1000}
 }));
 
 app.use(express.urlencoded({ extended: true }));
