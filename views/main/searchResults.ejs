@@ -45,12 +45,12 @@
                                             <img src="<%= result.images[0].url%>" alt="Album cover">
                                         </div>
                                         <div class="track-info">
-                                            <h2 class="track-title">
-                                                <%= result.name %>
-                                            </h2>
-                                            <p class="artist-name">
-                                                <%= result.publisher %>
-                                            </p>
+                                            <h2 class="track-title"><%= result.name %></h2>
+                                            <p class="artist-name"><%= result.publisher %></p>
+                                            <div class="track-stats-container">
+                                                <p class="track-stat">Likes: <%= result.likeCount %></p>
+                                                <p class="track-stat">Dislikes: <%= result.dislikeCount %></p>
+                                              </div>
                                         </div>
                                     </li>
                                 </a>
