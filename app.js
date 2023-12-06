@@ -473,7 +473,7 @@ app.get('/track/:id', async (req, res, next) => {
         console.log(`\nGetting track ${data.name}`);
 
         // Check if track exists in the database
-        let track = await Track.findOne({ track_id: id });
+        let track = await Track.findOne({ track_id: id }).populate('comments.user');
 
         // If track doesn't exist, create a new track
         if (!track) {
