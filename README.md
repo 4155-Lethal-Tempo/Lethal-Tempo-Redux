@@ -40,17 +40,19 @@ VSCode: https://code.visualstudio.com/download
 
 9: You will then be taken to the dashboard after this, click on settings
 
-10: Next you will see your client ID, copy this and paste it into the file **.env-example** in the quotation marks.
+10: Next you will see your client ID, copy this and paste it into the file **.env-example** inside of the quotation marks where **CLIENT_ID** is found
 
-11: Back on the Spotify Developer Website, click *View client secret*, copy your client secret and paste it into **.env-example**
+11: Back on the Spotify Developer Website, click *View client secret*, copy your client secret and paste it into **.env-example** in the **CLIENT_SECRET** field
 
-12: Paste the callback URL (this: `http://localhost:8084/callback`) into Callback
+12: Paste the callback URL (this: `http://localhost:8084/callback`) into the field named **REDIRECT_URI**
 
-13: Change the name of the **.env-example** file to just **.env**
+13: Add your mongoDB connection string from mongoDB Compass to the variable named **DB_CONNECTION_STRING**
 
-14: In your terminal type `npm start`
+14: Change the name of the **.env-example** file to just **.env**
 
-15: Head to your browser and in the address bar type `localhost:8084` and sign in to test it out!
+15: In your terminal type `npm start`
+
+16: Head to your browser and in the address bar type `localhost:8084` and sign in to test it out!
 
 
 
