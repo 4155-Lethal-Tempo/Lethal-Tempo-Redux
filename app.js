@@ -200,6 +200,7 @@ app.get('/home', async (req, res) => {
       if (track && track.id) {
         let trackInDb = mostLikedTracks.find(t => t.track_id === track.id);
         if (trackInDb) {
+          user = req.session.user;
           track.likeCount = trackInDb.likes;
           track.dislikeCount = trackInDb.dislikes;
           trackDetails.push(track);
@@ -262,6 +263,11 @@ app.get('/search', async (req, res) => {
   const query = req.query.query;
   const type = req.query.type;
 
+  // Check if the search query is empty
+  if (!query || !/^[a-zA-Z0-9]+$/.test(query)) {
+    return res.render('main/searchResults.ejs', { results: [], user: req.session.user, emptySearch: true });
+  }
+
   const response = await fetch(`https://api.spotify.com/v1/search?type=${type}&q=${query}`, {
     headers: { 'Authorization': 'Bearer ' + req.session.access_token }
   });
@@ -278,7 +284,7 @@ app.get('/search', async (req, res) => {
       if (type === 'track') {
         dbItem = await Track.findOne({ track_id: item.id });
       } else if (type === 'show') {
-        dbItem = await Show.findOne({ show_id: item.id }); // replace with your actual Show model
+        dbItem = await Show.findOne({ show_id: item.id });
       }
 
       if (dbItem) {
@@ -288,7 +294,7 @@ app.get('/search', async (req, res) => {
         if (type === 'track') {
           dbItem = new Track({ track_id: item.id, likes: 0, dislikes: 0 });
         } else if (type === 'show') {
-          dbItem = new Show({ show_id: item.id, likes: 0, dislikes: 0 }); // replace with your actual Show model
+          dbItem = new Show({ show_id: item.id, likes: 0, dislikes: 0 });
         }
         await dbItem.save();
         item.likeCount = dbItem.likes;
@@ -296,7 +302,7 @@ app.get('/search', async (req, res) => {
       }
     }
 
-    res.render('main/searchResults.ejs', { results: items, user: req.session.user });
+    res.render('main/searchResults.ejs', { results: items, user: req.session.user, emptySearch: false });
   } else {
     res.send('Failed to search. Status code: ' + response.status);
   }
