@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
+const {schema: FriendSchema} = require('./friend');
 
 // Subject to change
 const UserSchema = new mongoose.Schema({
   spotify_id: String,
-  friends: [String],
+  display_name: String,
+  friends: [FriendSchema],
   // Tracks
   liked_tracks: [String],
   disliked_tracks: [String],

@@ -8,6 +8,7 @@
 const express = require('express');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const flash = require('connect-flash');
 const request = require('request');
 const querystring = require('node:querystring');
 const mongoose = require('mongoose');
@@ -15,6 +16,7 @@ const User = require('./models/user');
 const Track = require('./models/track');
 const Show = require('./models/show');
 const Comment = require('./models/comment');
+const Friend = require('./models/friend');
 
 const app = express();
 require('dotenv').config();
@@ -41,6 +43,14 @@ app.use(session({
   store: MongoStore.create({ mongoUrl: process.env.DB_CONNECTION_STRING }),
   cookie: {maxAge: 60*60*1000, secure: false}
 }));
+
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  res.locals.errorMessages = req.flash('error');
+  next();
+});
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -102,7 +112,7 @@ app.get('/callback', function (req, res, next) {
 
         // If the user doesn't exist, create a new document/entry in the database
         if (!dbUser) {
-          dbUser = new User({ spotify_id: spotify_id });
+          dbUser = new User({ spotify_id: spotify_id, display_name: user.display_name });
           await dbUser.save();
         } else {
           // If the user exists, save the user's ID in the session
@@ -391,48 +401,65 @@ app.get('/top-tracks', async (req, res) => {
     }
   } else {
     try {
-      const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50', {
-        headers: {
-          'Authorization': `Bearer ${req.session.access_token}`
-        }
-      });
 
-      const shortTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50', {
-        headers: {
-          'Authorization': `Bearer ${req.session.access_token}`
-        }
-      });
+      /*
+      Utilized Chat GPT to make requests more effiecent using Paraellizing.
+      Promise.all is used to make requests to the API in parallel.
+      */
+      const urls = [
+        'https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=50',
+        'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=50',
+        'https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50'
+      ];
 
-      const mediumTermResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50', {
-        headers: {
-          'Authorization': `Bearer ${req.session.access_token}`
-        }
-      });
-
-      if (response.status === 200 && shortTermResponse.status === 200 && mediumTermResponse.status === 200) {
-        const data = await response.json();
-        const shortTermData = await shortTermResponse.json();
-        const mediumTermData = await mediumTermResponse.json();
-
-
-        // For each track in each term, check if it exists in the MongoDB database and fetch the like and dislike count
-        for (let termData of [data, shortTermData, mediumTermData]) {
-          for (let track of termData.items) {
-            let trackInDb = await Track.findOne({ track_id: track.id });
-            if (trackInDb) {
-              track.likeCount = trackInDb.likes;
-              track.dislikeCount = trackInDb.dislikes;
-            } else {
-              // If track doesn't exist in the database, create a new track
-              trackInDb = new Track({ track_id: track.id, comments: [] });
-              await trackInDb.save();
-
-              track.likeCount = 0;
-              track.dislikeCount = 0;
-            }
+      // Create an array of fetch promises
+      const fetchPromises = urls.map(url =>
+        fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${req.session.access_token}`
           }
+        })
+      );
+
+      // Wait for all the fetch promises to resolve
+      const responses = await Promise.all(fetchPromises);
+
+      // Check if all the responses are ok
+      if (responses.every(response => response.status === 200)) {
+        // Create an array of json promises
+        const jsonPromises = responses.map(response => response.json());
+        // Wait for all the json promises to resolve
+        const [data, shortTermData, mediumTermData] = await Promise.all(jsonPromises);
+
+        // Combine all the tracks into one array
+        const allTracks = [...data.items, ...shortTermData.items, ...mediumTermData.items];
+
+        // Get the track IDs
+        const trackIds = allTracks.map(track => track.id);
+
+        // Check if the tracks exist in the database
+        const tracksInDb = await Track.find({ track_id: { $in: trackIds } });
+
+        // Get the tracks that don't exist in the database
+        const newTracks = allTracks.filter(track =>
+          !tracksInDb.some(trackInDb => trackInDb.track_id === track.id)
+        ).map(track => ({ track_id: track.id, comments: [] }));
+
+        // Save the new tracks in the database
+        if (newTracks.length > 0) {
+          await Track.insertMany(newTracks);
         }
 
+        // Add the like and dislike counts to the tracks
+        for (let track of allTracks) {
+          // Find the track in the database
+          const trackInDb = tracksInDb.find(trackInDb => trackInDb.track_id === track.id);
+
+          // Add the like and dislike counts to the track if
+          // if it doesn't exist in the database, set the counts to 0
+          track.likeCount = trackInDb ? trackInDb.likes : 0;
+          track.dislikeCount = trackInDb ? trackInDb.dislikes : 0;
+        }
 
         res.render('main/topTracks.ejs', {
           tracks: data,
@@ -441,7 +468,7 @@ app.get('/top-tracks', async (req, res) => {
           user: req.session.user
         });
       } else {
-        res.send('Failed to retrieve top tracks. Status code: ' + response.status);
+        res.send('Failed to retrieve top tracks. Status code: ' + responses[0].status);
       }
     } catch (error) {
       res.send('An error occurred: ' + error.message);
@@ -665,12 +692,23 @@ app.get('/me', async (req, res, next) => {
       });
       return response.json();
     }));
+
+    let response = await fetch(`https://api.spotify.com/v1/${req.session.user.id}/playlists`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.access_token}`
+      }
+    });
+
+    let playlistDetails = await response.json();
+
+
     res.render('main/profile.ejs', {
       likedTracks: likedTracksDetails,
       dislikedTracks: dislikedTracksDetails,
       likedShows: likedShowsDetails,
       dislikedShows: dislikedShowsDetails,
-      user: req.session.user
+      user: req.session.user,
+      usersPlaylists: playlistDetails
     });
   }
 });
@@ -1112,6 +1150,267 @@ app.post('/delete-show-comment/:showid/:commentId', async (req, res) => {
     res.status(500).send('Internal Server error');
   }
 
+});
+
+app.get('/friends', async (req, res, next) => {
+  try {
+
+    // Get current user
+    let userDB = await User.findOne({ spotify_id: req.session.user.id });
+    let searchResults = null;
+
+    // For each friend, ping the Spotify API to get their profile https://api.spotify.com/v1/users/{user_id}
+    // This is so we can display their profile picture and name
+    friendsAPI = await Promise.all(userDB.friends.map(async (friend) => {
+      let response = await fetch(`https://api.spotify.com/v1/users/${friend.spotify_id}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+
+    // Render the Friends page with the list of friends
+    res.render('main/friends.ejs', { userDB: userDB, user: req.session.user, friendsAPI: friendsAPI, searchResults: searchResults  });
+  } catch (error) {
+    // Handle errors appropriately
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/friends/search', async (req, res) => {
+  try {
+    const searchQuery = req.body.display_name;
+
+    // Search for users in the database
+    let usersDBSearch = await User.find({ display_name: { $regex: searchQuery, $options: 'i' } });
+    let userDB = await User.findOne({ spotify_id: req.session.user.id });
+
+    let friendsAPI = await Promise.all(userDB.friends.map(async (friend) => {
+      let response = await fetch(`https://api.spotify.com/v1/users/${friend.spotify_id}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+
+    // Fetch their profiles from the Spotify API
+    let searchResults = await Promise.all(usersDBSearch.map(async (user) => {
+      let response = await fetch(`https://api.spotify.com/v1/users/${user.spotify_id}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+
+    if (searchResults.length === 0) {
+      req.flash('errorMessages', 'No users found.');
+    }
+
+    // Render the Friends page with the search results
+    res.render('main/friends.ejs', { user: req.session.user, searchResults: searchResults, friendsAPI: friendsAPI });
+  } catch (error) {
+    // Handle errors appropriately
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Handle POST request to add a new friend
+app.post('/friends/add/:id', async (req, res) => {
+  try {
+    // Get current user
+    let user = await User.findOne({ spotify_id: req.session.user.id });
+
+    // Get the friend from the database if they exist
+    const findUser = await User.findOne({ spotify_id: req.params.id });
+
+    // If the friend doesn't use our app, complain using connect-flash
+    if (!findUser) {
+      req.flash('errorMessages', 'User does not exist.');
+      return res.redirect('/friends');
+    }
+
+    // Create a new friend
+    const newFriend = new Friend({ spotify_id: findUser.spotify_id, display_name: findUser.display_name });
+
+    // If the friend is the current user, redirect to the friends page
+    if (findUser.spotify_id === req.session.user.id) {
+      req.flash('errorMessages', 'You cannot add yourself as a friend.');
+      return res.redirect('/friends');
+    }
+
+    // Check if the friend already exists in the users friends list
+    if (user.friends.some(friend => friend.spotify_id === newFriend.spotify_id)) {
+      req.flash('errorMessages', 'This user is already your friend.');
+      return res.redirect('/friends');
+    }
+
+    // Else we Add the friend to the user's friends list
+    user.friends.push(newFriend);
+
+    // Save the user and friend in the database
+    await user.save();
+
+    // Redirect to the friends page
+    res.redirect('/friends');
+  } catch (error) {
+    // Handle errors appropriately
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/friend-profile/:id', async (req, res, next) => {
+  const id = req.params.id;
+  
+  if (accessTokenHasExpired(req)) {
+    try {
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error refreshing access token', error);
+    }
+  } else {
+    const userId = id;
+    let user = await User.findOne({ spotify_id: userId });
+
+    const response = await fetch(`https://api.spotify.com/v1/users/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.access_token}`
+      }
+    });
+    const data = await response.json();
+
+    // In the profile we will let the user look at all the tracks they've liked and disliked
+    // Same with shows
+    let likedTracksDetails = await Promise.all(user.liked_tracks.map(async (trackId) => {
+      let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+  
+    let dislikedTracksDetails = await Promise.all(user.disliked_tracks.map(async (trackId) => {
+      let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+
+    let likedShowsDetails = await Promise.all(user.liked_shows.map(async (showId) => {
+      let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+  
+    let dislikedShowsDetails = await Promise.all(user.disliked_shows.map(async (showId) => {
+      let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+    res.render('main/friend-profile.ejs', {
+      likedTracks: likedTracksDetails,
+      dislikedTracks: dislikedTracksDetails,
+      likedShows: likedShowsDetails, 
+      dislikedShows: dislikedShowsDetails,
+      friend: data,
+      user: req.session.user
+    });
+  }
+});
+
+app.get('/profile/:id', async (req, res, next) => {
+  const id = req.params.id;
+  
+  if (accessTokenHasExpired(req)) {
+    try {
+      const response = await fetch('/refresh_token');
+      if (response.ok) {
+        const data = await response.json();
+        req.session.access_token = data.access_token;
+        req.session.access_token_received_at = Date.now();
+      } else {
+        console.error('Error refreshing access token', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error refreshing access token', error);
+    }
+  } else {
+    const userId = id;
+    let user = await User.findOne({ spotify_id: userId });
+
+    const response = await fetch(`https://api.spotify.com/v1/users/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.access_token}`
+      }
+    });
+    const data = await response.json();
+
+    // In the profile we will let the user look at all the tracks they've liked and disliked
+    // Same with shows
+    let likedTracksDetails = await Promise.all(user.liked_tracks.map(async (trackId) => {
+      let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+  
+    let dislikedTracksDetails = await Promise.all(user.disliked_tracks.map(async (trackId) => {
+      let response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+
+    let likedShowsDetails = await Promise.all(user.liked_shows.map(async (showId) => {
+      let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+  
+    let dislikedShowsDetails = await Promise.all(user.disliked_shows.map(async (showId) => {
+      let response = await fetch(`https://api.spotify.com/v1/shows/${showId}`, {
+        headers: {
+          'Authorization': `Bearer ${req.session.access_token}`
+        }
+      });
+      return response.json();
+    }));
+    res.render('main/profile.ejs', {
+      likedTracks: likedTracksDetails,
+      dislikedTracks: dislikedTracksDetails,
+      likedShows: likedShowsDetails,
+      dislikedShows: dislikedShowsDetails,
+      user: req.session.user
+    });
+  }
 });
 
 app.use((err, req, res, next) => {

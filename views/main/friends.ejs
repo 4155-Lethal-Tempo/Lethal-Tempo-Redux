@@ -1,0 +1,86 @@
+<%- include('../partials/head.ejs') %>
+
+<body style="background-color: black; color: white">
+  <%- include('../partials/header.ejs') %>
+    <div class="bdy-container">
+      <div class="title">
+        <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
+      </div>
+      <div class="body-container">
+        <%- include('../partials/nav.ejs') %>
+        <h2 style="display: flex; justify-content: center;">Friends</h2>
+
+        <% if (messages.errorMessages) { %>
+          <script>
+            setTimeout(function() {
+              const element = document.getElementById('flash-message');
+              if (element) {
+                element.style.display = 'none';
+              }
+            }, 5000); // 5 seconds
+          </script>
+          <div class="alert alert-error" id="flash-message">
+            <%= messages.errorMessages %>
+          </div>
+        <% } %>
+
+        <!-- Form to add a new friend -->
+        <form action="/friends/search" method="post" style="display: flex; justify-content: center;">
+          <label for="display_name">Spotify ID:</label>
+          <input type="text" id="display_name" name="display_name" required>
+          <button type="submit">Add Friend</button>
+        </form>
+
+        <!-- Display the list of friends -->
+        <div class="friend-mid-container" style="display: flex; width: 100%; justify-content: space-evenly;">
+          <div class="friend-container">
+            <% if (friendsAPI && friendsAPI.length > 0) { %>
+              <h3>Your Friends</h3>
+              <ul>
+                <% friendsAPI.forEach(function(friend) { %>
+                  <a href="/friend-profile/<%= friend.id %>" style="text-decoration: none; margin-bottom: 20px;">
+                    <li style="list-style-type: none;">
+                      <img src="<%= (friend.images[0]?.url) ? friend.images[0].url : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png' %>" alt="<%= friend.display_name %>'s profile picture" style="width: 50px; height: 50px;">
+                      <p><%= friend.display_name %></p>
+                    </li>
+                  </a>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p>No friends added yet.</p>
+            <% } %>
+          </div>
+          <div class="results-container">
+            <h3>Search Results</h3>
+            <% if (searchResults && searchResults.length > 0) { %>
+              <ul>
+                <% searchResults.forEach(function(result) { %>
+                  <a href="/profile/<%= result.id %>" style="text-decoration: none; margin-bottom: 20px;">
+                    <li style="list-style-type: none; margin-bottom: 20px;">
+                      <img src="<%= (result.images[0]?.url) ? result.images[0].url : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png' %>" alt="<%= result.display_name %>'s profile picture" style="width: 50px; height: 50px;">
+                      <p><%= result.display_name %></p>
+
+                      <%# If the user is not friends with the result, and the result is not the user, let them add each other %>
+                      <% if (result.id !== user.id && !friendsAPI.find(friend => friend.id === result.id)) { %>
+                        <form action="/friends/add/<%= result.id %>" method="post">
+                          <button type="submit">Add</button>
+                        </form>
+                      <% } %>
+                    </li>
+                  </a>
+                <% }); %>
+              </ul>
+              <%# Else if we get no search results say it %>
+              <% } else if (searchResults && searchResults.length === 0) { %>
+                <p>No results found</p>
+              <%# Else is for when we first land on this page, for when we havent searched %>
+              <% } else { %>
+                <p>Try Searching for your friends!</p>
+              <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+
+</html>
