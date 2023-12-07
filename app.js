@@ -1103,7 +1103,7 @@ app.get('/rated-shows', async (req, res) => {
       }
     }
   
-    const userId = req.session.userDB.spotify_id;
+    const userId = req.session.user.id;
     let user = await User.findOne({ spotify_id: userId });
   
     let likedShowsDetails = await Promise.all(user.liked_shows.map(async (showId) => {
