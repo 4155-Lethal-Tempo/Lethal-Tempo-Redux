@@ -9,6 +9,19 @@
     <title>Lethal Tempo</title>
 </head>
 <body>
+    <% if (messages.errorMessages) { %>
+        <script>
+          setTimeout(function() {
+            const element = document.getElementById('flash-message');
+            if (element) {
+              element.style.display = 'none';
+            }
+          }, 5000); // 5 seconds
+        </script>
+        <div class="alert alert-error" id="flash-message">
+          <%= messages.errorMessages %>
+        </div>
+      <% } %>
     
 
     <div class="container">
