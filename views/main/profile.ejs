@@ -35,7 +35,7 @@
                                       <% likedTracks.forEach(function(track) { %>
                                         <a class="track-link" href="/track/<%= track.id %>">
                                           <li class="track-card">
-                                            <div class="album-cover">
+                                            <div class="album-cover-profile">
     
                                               <% if (track.album && track.album.images && track.album.images.length > 0) { %>
                                                 <img src="<%= track.album.images[0].url %>" alt="Album cover">
@@ -65,7 +65,7 @@
                                     <% dislikedTracks.forEach(function(track) { %>
                                       <a class="track-link" href="/track/<%= track.id %>">
                                         <li class="track-card">
-                                          <div class="album-cover">
+                                          <div class="album-cover-profile">
                                             <!--<img src="<%= track.album.images[0].url %>" alt="Album cover">-->
     
                                             <% if (track.album && track.album.images && track.album.images.length > 0) { %>
@@ -101,7 +101,7 @@
                                       <% likedShows.forEach(function(show) { %>
                                         <a class="track-link" href="/show/<%= show.id %>">
                                           <li class="track-card">
-                                            <div class="album-cover">
+                                            <div class="album-cover-profile">
                                               
     
                                                 <% if (show.images && show.images.length > 0) { %>
@@ -132,7 +132,7 @@
                                     <% dislikedShows.forEach(function(show) { %>
                                       <a class="track-link" href="/show/<%= show.id %>">
                                         <li class="track-card">
-                                          <div class="album-cover">
+                                          <div class="album-cover-profile">
     
                                             <% if (show.images && show.images.length > 0) { %>
                                               <img src="<%= show.images[0].url %>" alt="Album cover">

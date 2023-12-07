@@ -38,6 +38,12 @@ li.track-card:hover {
     border-radius: 10px;
 }
 
+.album-cover-profile img{
+    width: 75px;
+    height: 75px;
+    border-radius: 10px;
+}
+
 .track-info {
     margin-left: 20px;
     width: 75%;
@@ -164,7 +170,8 @@ li.track-card:hover {
     background-color: #3d3d3d;
     color: #FFFFFF;
     font-family: DM Sans, sans-serif;
-    border: none;
+    border-color: black;
+    border-width: 3px;
     outline: none;
     border-radius: 15px;
     padding: 10px;
@@ -211,6 +218,11 @@ li.track-card:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: solid;
+    border-color: black;
+    padding-left: 10px;
+    margin-top: 20px;
+    border-radius: 10px;
 }
 
 .comment > p {
@@ -227,9 +239,8 @@ li.track-card:hover {
 .DeleteBut {
     font-family: DM, sans-serif;
     font-weight: bold;
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px;
-    background-color: #ff0000;
+    border-radius: 50px;
+    background-color: #6b1f1f;
     color: #FFFFFF;
     border: none;
     font-size: 16px;
@@ -238,6 +249,7 @@ li.track-card:hover {
     margin: 4px 0px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-right: 10px;
 }
 
 .DeleteBut:hover {
@@ -269,9 +281,8 @@ li.track-card:hover {
 .DeleteBut {
     font-family: DM, sans-serif;
     font-weight: bold;
-    border-top-right-radius: 50px;
-    border-bottom-right-radius: 50px;
-    background-color: #ff0000;
+    border-radius: 50px;
+    background-color: rgb(29, 185, 84, 1.0);
     color: #FFFFFF;
     border: none;
     font-size: 16px;
@@ -280,11 +291,13 @@ li.track-card:hover {
     margin: 4px 0px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-right: 10px;
+
 }
 
 .DeleteBut:hover {
-    color: black;
-    background-color: white;
+    color: white;
+    background-color: rgb(255, 0, 0);
 }
 
 .EditBut {
@@ -340,4 +353,8 @@ li.track-card:hover {
 #tooltip:hover #tooltipText {
     visibility: visible;
     opacity: 1;
+}
+
+#name {
+    color: rgb(29, 185, 84, 1.0);
 }

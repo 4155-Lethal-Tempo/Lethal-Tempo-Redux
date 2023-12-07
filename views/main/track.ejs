@@ -64,13 +64,10 @@
                     <% trackDB.comments.forEach(comment => { %>
                       <div class="comment">
                         <p>
-                          <strong><%= comment.user.display_name %>:</strong> <%= comment.comment %>
+                          <strong id="name"><%= comment.user.display_name %>:</strong> <%= comment.comment %>
                         </p>
                         <% if (comment.user.spotify_id === userDB.spotify_id) { %>
                           <div class="buttons">
-                            <form action="/edit-track-comment/<%= trackDB.track_id %>/<%= comment._id %>" method="post">
-                              <button type="submit" class="EditBut">Edit</button>
-                            </form>
                             <form action="/delete-track-comment/<%= trackDB.track_id %>/<%= comment._id %>" method="post">
                               <button type="submit" class="DeleteBut">Delete</button>
                             </form>

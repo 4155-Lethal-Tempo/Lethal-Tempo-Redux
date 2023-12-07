@@ -289,11 +289,11 @@ app.get('/search', async (req, res) => {
     req.flash('errorMessages', 'You must be logged in to view this page');
     res.redirect('/');
   } else {
-    const query = req.query.query;
+    const query = req.query.query.trim();
     const type = req.query.type;
 
     // Check if the search query is empty
-    if (!query || !/^[a-zA-Z0-9]+$/.test(query)) {
+    if (!query || !/^[a-zA-Z0-9\s]+$/.test(query)) {
       return res.render('main/searchResults.ejs', { results: [], user: req.session.user, emptySearch: true });
     }
 
@@ -1637,6 +1637,43 @@ app.get('/profile/:id', async (req, res, next) => {
   }
 });
 
+app.post('/delete-friend/:Id', async (req, res) => {
+  var access_token = req.session.access_token;
+
+  if (access_token == null || access_token == '' || access_token == undefined) {
+    req.flash('errorMessages', 'You must be logged in to view this page');
+    res.redirect('/');
+  } else {
+    const Id = req.session.user.id;
+
+    const friendId = req.params.Id; // Corrected parameter name
+    const userId = Id;
+
+    try {
+      // Find the user in the database
+      let user = await User.findOne({ spotify_id: userId });
+
+      if (!user) {
+        let err = new Error('No user found with id ' + userId);
+        err.status = 404;
+        return next(err); 
+      }
+
+      // Remove the friend from the user's friends list
+      user.friends.pull({ spotify_id: friendId });
+
+      // Save the user
+      await user.save();
+
+      res.redirect('/friends');
+    } catch (error) {
+        let err = new Error('Error ' + error.message);
+        err.status = 500;
+        return next(err);
+    }
+  }
+});
+
 // 404 error
 app.use((req, res, next) => {
   let err = new Error('The server cannot locate ' + req.url);
@@ -1661,4 +1698,3 @@ app.use((err, req, res, next) => {
     res.render('main/error.ejs', { error: err, user: req.session.user });
   }
 });
-
