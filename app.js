@@ -479,7 +479,15 @@ app.get('/top-tracks', async (req, res) => {
   
           // Save the new tracks in the database
           if (newTracks.length > 0) {
-            await Track.insertMany(newTracks);
+            const bulkOps = newTracks.map(track => ({
+              updateOne: {
+                filter: { track_id: track.track_id },
+                update: { $set: track },
+                upsert: true
+              }
+            }));
+
+            await Track.bulkWrite(bulkOps);
           }
   
           // Add the like and dislike counts to the tracks
