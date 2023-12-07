@@ -17,7 +17,13 @@
                             <p class="artist-name-big"><%= track.artists[0].name %></p>
                             <p class="artist-name-big">Album: <%= track.album.name %></p>
                             <p class="artist-name-big">Released: <%= track.album.release_date %></p>
-                            <p class="artist-name-big">Spotify Song Popularity (0-100): <%= track.popularity %></p>
+                            <p class="artist-name-big">Popularity: <%= track.popularity %> <span id="tooltip"><span id="tooltipText">
+                              The popularity of a track is a value between 0 and 100, with
+                              <br> 100 being the most popular. The popularity is calculated by
+                              <br> algorithm and is based, in the most part, on the total number
+                              <br> of plays the track has had and how recent those plays are.
+                        
+                            </span><span class="material-symbols-outlined">help</span></span></p>
                         
                             <%# Likes and dislikes %>
                             <div class="post-ratings-container">

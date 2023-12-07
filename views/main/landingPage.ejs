@@ -4,13 +4,13 @@
 <%- include('../partials/header.ejs')%>
     <div class="bdy-container">
         <div class="title">
-            <h1 style="text-align: center; padding-top: 5px;">Lethal Tempo</h1>
+            <h1 style="text-align: center; padding-top: 5px; margin-bottom: 0px;">Lethal Tempo</h1>
         </div>
         <div class="body-container">
+            <h1 style="font-family: DM Sans, sans-serif;">Welcome <%= user.display_name %></h1>
             <%- include('../partials/nav.ejs') %>
             <br>
             <br>
-            <h1 style="font-family: DM Sans, sans-serif;">Welcome <%= user.display_name %></h1>
             <div class="topTracksList" style="width: 70%;">
                 <div class="list2">
                     <h3 class="topTracks-title">Top 25 Liked Tracks</h3>

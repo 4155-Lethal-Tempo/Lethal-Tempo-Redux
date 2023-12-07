@@ -265,3 +265,79 @@ li.track-card:hover {
     color: black;
     background-color: white;
 }
+
+.DeleteBut {
+    font-family: DM, sans-serif;
+    font-weight: bold;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    background-color: #ff0000;
+    color: #FFFFFF;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    margin: 4px 0px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.DeleteBut:hover {
+    color: black;
+    background-color: white;
+}
+
+.EditBut {
+    font-family: DM, sans-serif;
+    font-weight: bold;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    background-color: blue;
+    color: #FFFFFF;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    margin: 4px 0px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.EditBut:hover {
+    color: black;
+    background-color: white;
+}
+
+#tooltip {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#tooltipText {
+    position: absolute;
+    transform: transLateX(-50%);
+    background-color: #000000b7;
+    color: #fff;
+    white-space: nowrap;
+    padding: 15px 15px;
+    border-radius: 7px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    margin-top: -40px;
+    margin-left: 290px;
+    font-size: 18px;
+    text-align: center;
+}
+
+#tooltipText::before {
+    content: "";
+    position: absolute;
+    transform: translateX(-50%);
+}
+
+#tooltip:hover #tooltipText {
+    visibility: visible;
+    opacity: 1;
+}
