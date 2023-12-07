@@ -10,8 +10,11 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const request = require('request');
-const querystring = require('node:querystring');
 const mongoose = require('mongoose');
+const querystring = require('node:querystring');
+var favicon = require('serve-favicon');
+const path = require('path');
+
 const User = require('./models/user');
 const Track = require('./models/track');
 const Show = require('./models/show');
@@ -46,6 +49,9 @@ app.use(session({
 
 app.use(flash());
 
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
+
 app.use((req, res, next) => {
   res.locals.messages = req.flash();
   res.locals.errorMessages = req.flash('error');
@@ -53,8 +59,6 @@ app.use((req, res, next) => {
 });
 
 app.use(express.urlencoded({ extended: true }));
-
-app.use(express.static('public'));
 
 // This is the callback page that is called after you login
 // It is supposed to give you an access token and a refresh token
