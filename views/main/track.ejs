@@ -119,10 +119,17 @@
                       'Content-Type': 'application/json',
                       'Authorization': `Bearer ${token}`
                   },
-              });
-
-              player.pause();
-          });
+              }).then(response => {
+                if (!response.ok && response.status === 403) {
+                    // If a 403 error occurs, hide the play/pause button
+                    const playPauseButton = document.getElementById('play-pause-button');
+                    playPauseButton.style.display = 'none';
+                }
+                return response;
+            }).catch(error => console.error('Error:', error));
+        
+            player.pause();
+        });
 
             // Not Ready
             player.addListener('not_ready', ({ device_id }) => {
