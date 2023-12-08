@@ -120,18 +120,18 @@
                       'Authorization': `Bearer ${token}`
                   },
               }).then(response => {
-                if (!response.ok && response.status === 403) {
-                    // If a 403 error occurs, hide the play/pause button
-                    const playPauseButton = document.getElementById('play-pause-button');
-                    playPauseButton.style.display = 'none';
-                }
+                if (response.ok) {
+                  // If the response is OK, add a delay before pausing the player
+                  setTimeout(() => {
+                      player.pause();
+                  }, 10); // Delay of 10 milliseconds
+              } else if (response.status === 403) {
+                  // If a 403 error occurs, hide the play/pause button
+                  const playPauseButton = document.getElementById('play-pause-button');
+                  playPauseButton.style.display = 'none';
+              }
                 return response;
             }).catch(error => console.error('Error:', error));
-        
-           // Add a delay before pausing the player
-            setTimeout(() => {
-              player.pause();
-            }, 10); // Delay of 10 miliseconds!!!
         });
 
             // Not Ready
