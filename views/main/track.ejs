@@ -92,7 +92,15 @@
 
             // Error handling
             player.addListener('initialization_error', ({ message }) => { console.error(message); });
-            player.addListener('authentication_error', ({ message }) => { console.error(message); });
+            player.addListener('authentication_error', ({ message }) => { 
+              console.error(message); 
+              if (message === 'Premium required') {
+                  // Hide the play/pause button and stop setting up the player
+                  const playPauseButton = document.getElementById('play-pause-button');
+                  playPauseButton.style.display = 'none';
+                  return;
+              }
+          });
             player.addListener('account_error', ({ message }) => { console.error(message); });
             player.addListener('playback_error', ({ message }) => { console.error(message); });
 
