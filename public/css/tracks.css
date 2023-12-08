@@ -358,3 +358,20 @@ li.track-card:hover {
 #name {
     color: rgb(29, 185, 84, 1.0);
 }
+
+#play-pause-button {
+    font-family: DM, sans-serif;
+    font-weight: bold;
+    width: 100px;
+    border-radius: 50px;
+    background-color: rgb(29, 185, 84, 1.0);
+    color: #FFFFFF;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    text-decoration: none;
+    margin: 4px 0px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+}

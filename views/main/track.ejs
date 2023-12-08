@@ -46,6 +46,7 @@
                                     </form>
                                   </div>
                                   <a class="logout" style="display: flex; align-items: center; height: 50px;" href="<%= track.uri %>">Listen on Spotify</a>
+                                  <button id="play-pause-button">Play</button>
                             </div>
                         </div>
                   </div>
@@ -79,4 +80,71 @@
                   </div>
 
                 </div>
+                <!-- Spotify Web Playback SDK -->
+        <script src="https://sdk.scdn.co/spotify-player.js"></script>
+        <script>
+        window.onSpotifyWebPlaybackSDKReady = () => {
+            const token = '<%= access_token %>'; // Use the access token from the server
+            const player = new Spotify.Player({
+                name: 'Web Playback SDK Template',
+                getOAuthToken: cb => { cb(token); }
+            });
+
+            // Error handling
+            player.addListener('initialization_error', ({ message }) => { console.error(message); });
+            player.addListener('authentication_error', ({ message }) => { console.error(message); });
+            player.addListener('account_error', ({ message }) => { console.error(message); });
+            player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+            // Playback status updates
+            player.addListener('player_state_changed', state => { console.log(state); });
+
+            // Ready
+            player.addListener('ready', ({ device_id }) => {
+                console.log('Ready with Device ID', device_id);
+
+                // Play a track
+              fetch("https://api.spotify.com/v1/me/player/play?device_id=" + device_id, {
+                  method: 'PUT',
+                  body: JSON.stringify({ uris: ["spotify:track:<%= track.id %>"] }), // Use the track ID from the server
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                  },
+              });
+
+              player.pause();
+          });
+
+            // Not Ready
+            player.addListener('not_ready', ({ device_id }) => {
+                console.log('Device ID has gone offline', device_id);
+            });
+
+            // Connect to the player!
+            player.connect();
+
+            // Get a reference to the play/pause button
+            const playPauseButton = document.getElementById('play-pause-button');
+
+            // Toggle play/pause when the button is clicked
+            playPauseButton.addEventListener('click', () => {
+              player.togglePlay().then(() => {
+                console.log('Toggled playback!');
+              });
+            });
+
+            // Update the button text based on the playback state
+            player.addListener('player_state_changed', state => {
+              if (state.paused) {
+                playPauseButton.textContent = 'Play';
+                playPauseButton.style.backgroundColor = 'green';
+              } else {
+                playPauseButton.textContent = 'Pause';
+                playPauseButton.style.backgroundColor = 'red';
+              }
+            });
+        };
+        </script>
     </body>
+</html>

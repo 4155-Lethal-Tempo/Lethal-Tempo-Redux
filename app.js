@@ -162,7 +162,7 @@ app.get('/', async (req, res, next) => {
 app.get('/login', (req, res) => {
   var state = generateRandomString(16);
   req.session.state = state;
-  var scope = 'user-library-read ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
+  var scope = 'streaming user-modify-playback-state user-library-read ugc-image-upload user-read-private user-read-email playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public user-follow-read user-follow-modify user-top-read user-read-recently-played user-read-playback-position';
 
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
@@ -572,7 +572,8 @@ app.get('/track/:id', async (req, res, next) => {
             track: data,
             user: req.session.user,
             trackDB: track,
-            userDB: req.session.userDB
+            userDB: req.session.userDB,
+            access_token: req.session.access_token // Add this line
           });
         } else {
           let err = new Error('The server cannot locate track: ' + req.url);
