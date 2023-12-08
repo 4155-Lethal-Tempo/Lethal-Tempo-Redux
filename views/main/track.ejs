@@ -16,7 +16,13 @@
                             <h2 class="track-title-big"><%= track.name %></h2>
                             <p class="artist-name-big"><%= track.artists[0].name %></p>
                             <p class="artist-name-big">Album: <%= track.album.name %></p>
-                            <p class="artist-name-big">Released: <%= track.album.release_date %></p>
+                            <% 
+                                const [year, month, day] = track.album.release_date.split('-');
+                                const releaseDate = new Date(Date.UTC(year, month - 1, parseInt(day) + 1));
+                                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                                const formattedDate = releaseDate.toLocaleDateString(undefined, options);
+                            %>
+                            <p class="artist-name-big">Released: <%= formattedDate %></p>
                             <p class="artist-name-big">Popularity: <%= track.popularity %> <span id="tooltip"><span id="tooltipText">
                               The popularity of a track is a value between 0 and 100, with
                               <br> 100 being the most popular. The popularity is calculated by
@@ -124,7 +130,7 @@
                   // If the response is OK, add a delay before pausing the player
                   setTimeout(() => {
                       player.pause();
-                  }, 10); // Delay of 10 milliseconds
+                  }, 600); // Delay of 400 milliseconds
               } else if (response.status === 403) {
                   // If a 403 error occurs, hide the play/pause button
                   const playPauseButton = document.getElementById('play-pause-button');

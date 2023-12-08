@@ -106,7 +106,7 @@ app.get('/callback', function (req, res, next) {
       req.session.access_token_received_at = Date.now();
       req.session.save();
 
-      console.log('\nAccess token received:', req.session.access_token);
+      // console.log('\nAccess token received:', req.session.access_token);
       // Get the user's profile
       const user = await getUserProfile(req.session.access_token, req, res, next);
       if (user) {
@@ -800,18 +800,18 @@ async function getUserProfile(accessToken, req, res, next) {
     headers: { 'Authorization': 'Bearer ' + accessToken }
   });
 
-  console.log('Response status:', response.status);
-  console.log('Response status text:', response.statusText);
-
   if (response.status !== 200) {
-    console.error('Failed to get user profile:', await response.text());
-    throw new Error('Failed to get user profile');
+    let err = new Error(await response.text());
+    err.status = response.status;
+    return next(err);
   }
 
   const userProfile = await response.json();
   return userProfile;
   } catch(error) {
-    next(error);
+    let err = new Error(error.message);
+    err.status = 500;
+    next(err);
   }
 }
 
