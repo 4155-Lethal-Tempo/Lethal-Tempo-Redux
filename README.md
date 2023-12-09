@@ -21,7 +21,7 @@ VSCode: https://code.visualstudio.com/download
 
 3: Open MongoDB Compass and copy your local connection string, it should look something like: *mongodb://127.0.0.1:27017/testDB*
 
-4: Paste that string into **line 23** of **app.js**
+4: Paste that string into **.env-example** where the DB Connection string goes
 
 5: Go to the following website and sign up for a developer account: https://developer.spotify.com/
 
